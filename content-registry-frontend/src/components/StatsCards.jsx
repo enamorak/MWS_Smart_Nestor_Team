@@ -8,7 +8,7 @@ const StatsCards = ({ stats }) => {
         const Icon = stat.icon;
         
         return (
-          <div key={index} className={`stat-card ${stat.color}`}>
+          <div key={index} className={`stat-card stat-${stat.color}`}>
             <div className="stat-header">
               <div className="stat-icon">
                 <Icon size={24} />
@@ -20,6 +20,7 @@ const StatsCards = ({ stats }) => {
             </div>
             <div className="stat-value">{stat.value}</div>
             <div className="stat-title">{stat.title}</div>
+            <div className="stat-description">{stat.description}</div>
           </div>
         );
       })}

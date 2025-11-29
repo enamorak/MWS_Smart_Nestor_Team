@@ -20,6 +20,40 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
+// Mock MWS API для тестирования
+app.get('/mock-mws/tables/:tableId/rows', (req, res) => {
+  const mockData = {
+    rows: [
+      {
+        id: '1',
+        title: 'Тестовый пост 1',
+        type: 'post',
+        date: new Date().toISOString(),
+        views: 12500,
+        likes: 245,
+        comments: 34,
+        sentiment_positive: 70,
+        sentiment_neutral: 20,
+        sentiment_negative: 10
+      },
+      {
+        id: '2',
+        title: 'Тестовое видео',
+        type: 'video',
+        date: new Date(Date.now() - 86400000).toISOString(),
+        views: 15600,
+        likes: 312,
+        comments: 45,
+        sentiment_positive: 65,
+        sentiment_neutral: 25,
+        sentiment_negative: 10
+      }
+    ],
+    total_count: 2
+  };
+  res.json(mockData);
+});
+
 // Routes
 app.use('/api/vk', require('./routes/vkRoutes'));
 app.use('/api/ai', require('./routes/aiRoutes'));

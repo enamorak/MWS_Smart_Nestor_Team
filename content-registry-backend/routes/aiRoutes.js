@@ -1,32 +1,43 @@
 const express = require('express');
 const router = express.Router();
 const aiController = require('../controllers/aiController');
+const botController = require('../controllers/botController');
 
-// Predict content popularity
+// Предсказание популярности
 router.post('/predict', aiController.predictPopularity);
 
-// Analyze text sentiment
+// Анализ текста
 router.post('/analyze', aiController.analyzeText);
 
-// Get content recommendations
+// Анализ контента
+router.post('/analyze-content', aiController.analyzeContentPerformance);
+
+// Рекомендации по контенту
 router.post('/recommendations', aiController.getContentRecommendations);
 
-// Health check for AI service
+// Анализ конкретного поста
+router.post('/posts/:postId/analyze', botController.analyzePost);
+
+// Статус AI сервиса
+router.get('/status', botController.getAIStatus);
+
+// Health check для AI сервиса
 router.get('/health', async (req, res) => {
   try {
-    // Test AI service with simple request
-    const testAnalysis = await require('../services/aiService').analyzeSentiment([
-      { text: 'Отличный пост!' }
-    ]);
+    const status = await require('../services/aiService').checkConnection();
     
     res.json({
-      status: 'OK',
-      service: 'AI Analysis',
-      timestamp: new Date().toISOString()
+      status: status.connected ? 'OK' : 'ERROR',
+      service: 'OpenRouter AI',
+      connected: status.connected,
+      timestamp: new Date().toISOString(),
+      details: status.connected ? 'AI service operational' : 'AI service offline'
     });
   } catch (error) {
     res.status(500).json({
       status: 'ERROR',
+      service: 'OpenRouter AI',
+      connected: false,
       error: error.message
     });
   }
