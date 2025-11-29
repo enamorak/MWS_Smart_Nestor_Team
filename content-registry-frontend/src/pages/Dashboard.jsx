@@ -14,6 +14,7 @@ import {
   ArrowDown
 } from 'lucide-react';
 import { mwsAPI } from '../services/api';
+import MWSDashboard from '../components/MWSDashboard';
 
 const Dashboard = () => {
   const [analytics, setAnalytics] = useState(null);

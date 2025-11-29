@@ -59,6 +59,8 @@ app.use('/api/vk', require('./routes/vkRoutes'));
 app.use('/api/ai', require('./routes/aiRoutes'));
 app.use('/api/mws', require('./routes/mwsRoutes'));
 app.use('/api/bot', require('./routes/botRoutes'));
+app.use('/api/networks', require('./routes/socialNetworksRoutes'));
+app.use('/api/sentiment', require('./routes/sentimentRoutes'));
 
 // Health check endpoint
 app.get('/health', (req, res) => {

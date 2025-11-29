@@ -5,6 +5,7 @@ import Dashboard from './pages/Dashboard';
 import ChatBot from './pages/ChatBot';
 import Analytics from './pages/Analytics';
 import Content from './pages/Content';
+import SocialNetworks from './pages/SocialNetworks';
 import './styles/index.css';
 
 function App() {
@@ -19,6 +20,7 @@ function App() {
             <Route path="/" element={<Dashboard />} />
             <Route path="/content" element={<Content />} />
             <Route path="/analytics" element={<Analytics />} />
+            <Route path="/networks" element={<SocialNetworks />} />
             <Route path="/chat" element={<ChatBot />} />
           </Routes>
         </main>

@@ -62,6 +62,36 @@ export const botAPI = {
     axios.get(`${API_BASE}/bot/capabilities`)
 };
 
+// Social Networks API
+export const networksAPI = {
+  // Получить данные всех сетей
+  getAllNetworks: () => 
+    axios.get(`${API_BASE}/networks`),
+
+  // Получить данные конкретной сети
+  getNetwork: (networkId) => 
+    axios.get(`${API_BASE}/networks/${networkId}`),
+
+  // Синхронизировать данные сети
+  syncNetwork: (networkId, data) => 
+    axios.post(`${API_BASE}/networks/${networkId}/sync`, data),
+
+  // Получить сравнительную статистику
+  getComparison: () => 
+    axios.get(`${API_BASE}/networks/comparison/stats`)
+};
+
+// Sentiment API
+export const sentimentAPI = {
+  // Анализ тональности комментариев
+  analyzeComments: (params) => 
+    axios.get(`${API_BASE}/sentiment/analyze`, { params }),
+
+  // Получить историю тональности
+  getHistory: (params) => 
+    axios.get(`${API_BASE}/sentiment/history`, { params })
+};
+
 // Общие утилиты
 export const apiUtils = {
   // Обработка ошибок
@@ -121,5 +151,7 @@ export default {
   vk: vkAPI,
   ai: aiAPI,
   bot: botAPI,
+  networks: networksAPI,
+  sentiment: sentimentAPI,
   utils: apiUtils
 };

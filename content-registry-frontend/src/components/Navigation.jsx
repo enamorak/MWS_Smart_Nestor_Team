@@ -14,6 +14,7 @@ const Navigation = ({ darkMode, setDarkMode }) => {
 
   const navItems = [
     { path: '/', icon: BarChart3, label: 'Дашборд' },
+    { path: '/networks', icon: BarChart3, label: 'Все сети' },
     { path: '/content', icon: FileText, label: 'Контент' },
     { path: '/analytics', icon: PieChart, label: 'Аналитика' },
     { path: '/chat', icon: MessageCircle, label: 'AI Ассистент' }
