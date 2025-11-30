@@ -7,7 +7,11 @@ import {
   Share2,
   TrendingUp,
   TrendingDown,
-  BarChart3
+  BarChart3,
+  Users,
+  Image,
+  Video,
+  FileText
 } from 'lucide-react';
 import { 
   LineChart, 
@@ -40,12 +44,12 @@ const SocialNetworks = () => {
       const response = await mwsAPI.getAnalytics();
       
       // Генерируем данные для разных сетей на основе MWS данных
-      const networksData = [
+      const         networksData = [
         {
           id: 'vk',
           name: 'VKontakte',
-          icon: '🔵',
-          color: '#0077FF',
+          icon: <Users size={20} />,
+          color: '#dc2626',
           stats: {
             totalPosts: 89,
             totalViews: 45000,
@@ -60,8 +64,8 @@ const SocialNetworks = () => {
         {
           id: 'telegram',
           name: 'Telegram',
-          icon: '💬',
-          color: '#0088cc',
+          icon: <MessageCircle size={20} />,
+          color: '#dc2626',
           stats: {
             totalPosts: 67,
             totalViews: 38000,
@@ -76,8 +80,8 @@ const SocialNetworks = () => {
         {
           id: 'instagram',
           name: 'Instagram',
-          icon: '📷',
-          color: '#E4405F',
+          icon: <Image size={20} />,
+          color: '#dc2626',
           stats: {
             totalPosts: 95,
             totalViews: 42000,
@@ -92,8 +96,8 @@ const SocialNetworks = () => {
         {
           id: 'youtube',
           name: 'YouTube',
-          icon: '▶️',
-          color: '#FF0000',
+          icon: <Video size={20} />,
+          color: '#dc2626',
           stats: {
             totalPosts: 34,
             totalViews: 125000,
@@ -177,7 +181,7 @@ const SocialNetworks = () => {
     <div className="social-networks-page">
       <div className="page-header">
         <div>
-          <h1>🌐 Все социальные сети</h1>
+          <h1><Users size={24} style={{ marginRight: '12px', verticalAlign: 'middle' }} />Все социальные сети</h1>
           <p>Единый дашборд для всех платформ</p>
         </div>
         <button onClick={loadNetworksData} className="btn-refresh">
@@ -189,28 +193,28 @@ const SocialNetworks = () => {
       {/* Общая статистика */}
       <div className="networks-overview">
         <div className="overview-card">
-          <div className="overview-icon">👁️</div>
+          <div className="overview-icon"><Eye size={32} /></div>
           <div className="overview-content">
             <div className="overview-value">{totalStats.views.toLocaleString()}</div>
             <div className="overview-label">Всего просмотров</div>
           </div>
         </div>
         <div className="overview-card">
-          <div className="overview-icon">❤️</div>
+          <div className="overview-icon"><Heart size={32} /></div>
           <div className="overview-content">
             <div className="overview-value">{totalStats.likes.toLocaleString()}</div>
             <div className="overview-label">Всего лайков</div>
           </div>
         </div>
         <div className="overview-card">
-          <div className="overview-icon">💬</div>
+          <div className="overview-icon"><MessageCircle size={32} /></div>
           <div className="overview-content">
             <div className="overview-value">{totalStats.comments.toLocaleString()}</div>
             <div className="overview-label">Всего комментариев</div>
           </div>
         </div>
         <div className="overview-card">
-          <div className="overview-icon">📝</div>
+          <div className="overview-icon"><FileText size={32} /></div>
           <div className="overview-content">
             <div className="overview-value">{totalStats.posts}</div>
             <div className="overview-label">Всего постов</div>
@@ -223,7 +227,7 @@ const SocialNetworks = () => {
         <h3>Выберите сети для отображения:</h3>
         <div className="filter-buttons">
           {networks.map(network => (
-            <button
+              <button
               key={network.id}
               className={`filter-btn ${selectedNetworks.includes(network.id) ? 'active' : ''}`}
               onClick={() => {
@@ -235,7 +239,8 @@ const SocialNetworks = () => {
               }}
               style={{ borderColor: network.color }}
             >
-              {network.icon} {network.name}
+              <span style={{ display: 'inline-flex', alignItems: 'center', marginRight: '8px' }}>{network.icon}</span>
+              {network.name}
             </button>
           ))}
         </div>
@@ -244,7 +249,7 @@ const SocialNetworks = () => {
       {/* Сравнение сетей */}
       <div className="card chart-card">
         <div className="card-header">
-          <h3>📊 Сравнение всех сетей</h3>
+          <h3><BarChart3 size={20} style={{ marginRight: '8px', verticalAlign: 'middle' }} />Сравнение всех сетей</h3>
         </div>
         <ResponsiveContainer width="100%" height={400}>
           <BarChart data={comparisonData}>
@@ -253,9 +258,9 @@ const SocialNetworks = () => {
             <YAxis />
             <Tooltip />
             <Legend />
-            <Bar dataKey="views" fill="#3b82f6" name="Просмотры" />
-            <Bar dataKey="likes" fill="#ef4444" name="Лайки" />
-            <Bar dataKey="comments" fill="#10b981" name="Комментарии" />
+            <Bar dataKey="views" fill="#dc2626" name="Просмотры" />
+            <Bar dataKey="likes" fill="#dc2626" name="Лайки" />
+            <Bar dataKey="comments" fill="#dc2626" name="Комментарии" />
           </BarChart>
         </ResponsiveContainer>
       </div>
@@ -263,7 +268,7 @@ const SocialNetworks = () => {
       {/* Динамика по всем сетям */}
       <div className="card chart-card">
         <div className="card-header">
-          <h3>📈 Динамика просмотров по сетям</h3>
+          <h3><TrendingUp size={20} style={{ marginRight: '8px', verticalAlign: 'middle' }} />Динамика просмотров по сетям</h3>
         </div>
         <ResponsiveContainer width="100%" height={400}>
           <ComposedChart data={combinedTimeSeries}>
@@ -291,10 +296,10 @@ const SocialNetworks = () => {
         {filteredNetworks.map(network => (
           <div key={network.id} className="network-card" style={{ borderTopColor: network.color }}>
             <div className="network-header">
-              <div className="network-title">
-                <span className="network-icon">{network.icon}</span>
-                <h3>{network.name}</h3>
-              </div>
+            <div className="network-title">
+              <span className="network-icon" style={{ display: 'inline-flex', alignItems: 'center' }}>{network.icon}</span>
+              <h3>{network.name}</h3>
+            </div>
               <div className={`network-growth ${network.stats.growth > 0 ? 'positive' : 'negative'}`}>
                 {network.stats.growth > 0 ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
                 {Math.abs(network.stats.growth).toFixed(1)}%

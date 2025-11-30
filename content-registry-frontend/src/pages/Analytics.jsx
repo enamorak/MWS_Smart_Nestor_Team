@@ -7,7 +7,10 @@ import {
   RefreshCw,
   Eye,
   Heart,
-  Share2
+  Share2,
+  BarChart3,
+  PieChart as PieChartIcon,
+  Trophy
 } from 'lucide-react';
 import { 
   LineChart, 
@@ -32,10 +35,11 @@ const Analytics = () => {
   const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
   const [timeRange, setTimeRange] = useState('7d'); // 7d, 30d, 90d, all
+  const [selectedNetworks, setSelectedNetworks] = useState(['vk', 'telegram', 'instagram', 'youtube']);
 
   useEffect(() => {
     loadAnalytics();
-  }, [timeRange]);
+  }, [timeRange, selectedNetworks]);
 
   const loadAnalytics = async () => {
     try {
@@ -84,14 +88,14 @@ const Analytics = () => {
   const typeDistributionData = analytics ? Object.entries(analytics.typeStats).map(([type, stats]) => ({
     name: type === 'video' ? 'Видео' : type === 'post' ? 'Посты' : 'Изображения',
     value: stats.count,
-    color: type === 'video' ? '#ef4444' : type === 'post' ? '#3b82f6' : '#10b981'
+    color: type === 'video' ? '#dc2626' : type === 'post' ? '#dc2626' : '#dc2626'
   })) : [];
 
   // Данные для тональности
   const sentimentData = analytics ? [
-    { name: 'Позитивные', value: Math.round(analytics.sentiment.positive * 100), color: '#10b981' },
-    { name: 'Нейтральные', value: Math.round(analytics.sentiment.neutral * 100), color: '#6b7280' },
-    { name: 'Негативные', value: Math.round(analytics.sentiment.negative * 100), color: '#ef4444' }
+    { name: 'Позитивные', value: Math.round(analytics.sentiment.positive * 100), color: '#dc2626' },
+    { name: 'Нейтральные', value: Math.round(analytics.sentiment.neutral * 100), color: '#9ca3af' },
+    { name: 'Негативные', value: Math.round(analytics.sentiment.negative * 100), color: '#991b1b' }
   ] : [];
 
   // Данные для сравнения по социальным сетям
@@ -120,6 +124,67 @@ const Analytics = () => {
           <p>Глубокий анализ эффективности контента по всем социальным сетям</p>
         </div>
         <div className="header-controls">
+          <div className="networks-filter-analytics">
+            <label>Социальные сети:</label>
+            <div className="network-checkboxes">
+              <label className="network-checkbox">
+                <input 
+                  type="checkbox" 
+                  checked={selectedNetworks.includes('vk')}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      setSelectedNetworks([...selectedNetworks, 'vk']);
+                    } else {
+                      setSelectedNetworks(selectedNetworks.filter(n => n !== 'vk'));
+                    }
+                  }}
+                />
+                <span>VK</span>
+              </label>
+              <label className="network-checkbox">
+                <input 
+                  type="checkbox" 
+                  checked={selectedNetworks.includes('telegram')}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      setSelectedNetworks([...selectedNetworks, 'telegram']);
+                    } else {
+                      setSelectedNetworks(selectedNetworks.filter(n => n !== 'telegram'));
+                    }
+                  }}
+                />
+                <span>Telegram</span>
+              </label>
+              <label className="network-checkbox">
+                <input 
+                  type="checkbox" 
+                  checked={selectedNetworks.includes('instagram')}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      setSelectedNetworks([...selectedNetworks, 'instagram']);
+                    } else {
+                      setSelectedNetworks(selectedNetworks.filter(n => n !== 'instagram'));
+                    }
+                  }}
+                />
+                <span>Instagram</span>
+              </label>
+              <label className="network-checkbox">
+                <input 
+                  type="checkbox" 
+                  checked={selectedNetworks.includes('youtube')}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      setSelectedNetworks([...selectedNetworks, 'youtube']);
+                    } else {
+                      setSelectedNetworks(selectedNetworks.filter(n => n !== 'youtube'));
+                    }
+                  }}
+                />
+                <span>YouTube</span>
+              </label>
+            </div>
+          </div>
           <select 
             value={timeRange} 
             onChange={(e) => setTimeRange(e.target.value)}
@@ -141,7 +206,7 @@ const Analytics = () => {
         {/* Динамика просмотров и вовлеченности */}
         <div className="card chart-card">
           <div className="card-header">
-            <h3>📈 Динамика просмотров и вовлеченности</h3>
+            <h3><TrendingUp size={20} style={{ marginRight: '8px', verticalAlign: 'middle' }} />Динамика просмотров и вовлеченности</h3>
           </div>
           <ResponsiveContainer width="100%" height={300}>
             <AreaChart data={timeSeriesData}>
@@ -155,26 +220,27 @@ const Analytics = () => {
                 yAxisId="left"
                 type="monotone" 
                 dataKey="views" 
-                stroke="#3b82f6" 
-                fill="#3b82f6" 
-                fillOpacity={0.3}
+                stroke="#dc2626" 
+                fill="#dc2626" 
+                fillOpacity={0.2}
                 name="Просмотры"
               />
               <Area 
                 yAxisId="left"
                 type="monotone" 
                 dataKey="likes" 
-                stroke="#ef4444" 
-                fill="#ef4444" 
-                fillOpacity={0.3}
+                stroke="#991b1b" 
+                fill="#991b1b" 
+                fillOpacity={0.2}
                 name="Лайки"
               />
               <Line 
                 yAxisId="right"
                 type="monotone" 
                 dataKey="engagement" 
-                stroke="#10b981" 
+                stroke="#9ca3af" 
                 strokeWidth={2}
+                strokeDasharray="5 5"
                 name="Вовлеченность %"
               />
             </AreaChart>
@@ -184,7 +250,7 @@ const Analytics = () => {
         {/* Сравнение по социальным сетям */}
         <div className="card chart-card">
           <div className="card-header">
-            <h3>🌐 Сравнение по социальным сетям</h3>
+            <h3><Users size={20} style={{ marginRight: '8px', verticalAlign: 'middle' }} />Сравнение по социальным сетям</h3>
           </div>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={socialNetworkData}>
@@ -193,9 +259,9 @@ const Analytics = () => {
               <YAxis />
               <Tooltip />
               <Legend />
-              <Bar dataKey="views" fill="#3b82f6" name="Просмотры" />
-              <Bar dataKey="likes" fill="#ef4444" name="Лайки" />
-              <Bar dataKey="comments" fill="#10b981" name="Комментарии" />
+              <Bar dataKey="views" fill="#dc2626" name="Просмотры" />
+              <Bar dataKey="likes" fill="#991b1b" name="Лайки" />
+              <Bar dataKey="comments" fill="#9ca3af" name="Комментарии" />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -203,7 +269,7 @@ const Analytics = () => {
         {/* Распределение типов контента */}
         <div className="card chart-card">
           <div className="card-header">
-            <h3>📊 Распределение типов контента</h3>
+            <h3><PieChartIcon size={20} style={{ marginRight: '8px', verticalAlign: 'middle' }} />Распределение типов контента</h3>
           </div>
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
@@ -229,7 +295,7 @@ const Analytics = () => {
         {/* Анализ тональности комментариев */}
         <div className="card chart-card">
           <div className="card-header">
-            <h3>💬 Тональность комментариев</h3>
+            <h3><MessageCircle size={20} style={{ marginRight: '8px', verticalAlign: 'middle' }} />Тональность комментариев</h3>
           </div>
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
@@ -255,7 +321,7 @@ const Analytics = () => {
         {/* Динамика комментариев */}
         <div className="card chart-card">
           <div className="card-header">
-            <h3>💭 Динамика комментариев</h3>
+            <h3><MessageCircle size={20} style={{ marginRight: '8px', verticalAlign: 'middle' }} />Динамика комментариев</h3>
           </div>
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={timeSeriesData}>
@@ -267,7 +333,7 @@ const Analytics = () => {
               <Line 
                 type="monotone" 
                 dataKey="comments" 
-                stroke="#10b981" 
+                stroke="#dc2626" 
                 strokeWidth={2}
                 name="Комментарии"
               />
@@ -278,7 +344,7 @@ const Analytics = () => {
         {/* Топ материалы */}
         <div className="card">
           <div className="card-header">
-            <h3>🏆 Топ материалы</h3>
+            <h3><Trophy size={20} style={{ marginRight: '8px', verticalAlign: 'middle' }} />Топ материалы</h3>
           </div>
           <div className="top-content">
             {analytics && analytics.topPosts.slice(0, 5).map((post, index) => (

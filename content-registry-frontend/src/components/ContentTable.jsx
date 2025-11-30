@@ -1,5 +1,6 @@
-import React, { useState, useMemo } from 'react';
-import { Search, Filter, Download, ArrowUpDown, Eye, Heart, MessageCircle } from 'lucide-react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { Search, Filter, Download, ArrowUpDown, Eye, Heart, MessageCircle, Video, Image, FileText, RefreshCw } from 'lucide-react';
+import { mwsAPI } from '../services/api';
 
 const ContentTable = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -7,9 +8,54 @@ const ContentTable = () => {
   const [sentimentFilter, setSentimentFilter] = useState('all');
   const [sortField, setSortField] = useState('date');
   const [sortDirection, setSortDirection] = useState('desc');
+  const [contentData, setContentData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Mock данные для таблицы
-  const contentData = [
+  useEffect(() => {
+    loadContentData();
+  }, []);
+
+  const loadContentData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await mwsAPI.getContentData({ limit: 100 });
+      
+      if (response.data?.success && response.data?.data?.rows) {
+        // Преобразуем данные из MWS в формат таблицы
+        const transformedData = response.data.data.rows.map((row, index) => ({
+          id: row.id || index + 1,
+          title: row.title || 'Без названия',
+          type: row.type || 'post',
+          date: row.date || row.created_at || new Date().toISOString().split('T')[0],
+          views: row.views || 0,
+          likes: row.likes || 0,
+          comments: row.comments || 0,
+          reposts: row.reposts || row.shares || 0,
+          sentiment: row.sentiment_positive > 50 ? 'positive' : 
+                    row.sentiment_negative > 50 ? 'negative' : 'neutral',
+          engagement: row.views > 0 
+            ? ((row.likes + row.comments * 2) / row.views * 100).toFixed(1) 
+            : 0,
+          themes: row.themes || []
+        }));
+        setContentData(transformedData);
+      } else {
+        // Fallback на мок-данные если API не вернул данные
+        setContentData(getMockData());
+      }
+    } catch (error) {
+      console.error('Error loading content data:', error);
+      setError('Не удалось загрузить данные');
+      // Используем мок-данные при ошибке
+      setContentData(getMockData());
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getMockData = () => [
     {
       id: 1,
       title: 'Обзор нового продукта 2025',
@@ -139,10 +185,10 @@ const ContentTable = () => {
 
   const getTypeIcon = (type) => {
     switch (type) {
-      case 'video': return '🎥';
-      case 'post': return '📝';
-      case 'image': return '🖼️';
-      default: return '📄';
+      case 'video': return <Video size={16} />;
+      case 'post': return <FileText size={16} />;
+      case 'image': return <Image size={16} />;
+      default: return <FileText size={16} />;
     }
   };
 
@@ -172,10 +218,25 @@ const ContentTable = () => {
     window.URL.revokeObjectURL(url);
   };
 
+  if (loading) {
+    return (
+      <div className="content-table-container">
+        <div className="loading-state">
+          <RefreshCw className="spinner" size={32} />
+          <p>Загрузка данных контента...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="content-table-container">
       {/* Controls */}
       <div className="table-controls">
+        <button onClick={loadContentData} className="btn-refresh" style={{ marginRight: 'auto' }}>
+          <RefreshCw size={16} />
+          Обновить
+        </button>
         <div className="control-group">
           <div className="search-box">
             <Search size={18} />
@@ -295,7 +356,7 @@ const ContentTable = () => {
                 <td>
                   <div className="type-cell">
                     <span className="type-icon">{getTypeIcon(item.type)}</span>
-                    <span className="type-text">{item.type}</span>
+                    <span className="type-text">{item.type === 'video' ? 'Видео' : item.type === 'post' ? 'Пост' : 'Изображение'}</span>
                   </div>
                 </td>
                 <td>
@@ -349,7 +410,7 @@ const ContentTable = () => {
         
         {filteredAndSortedData.length === 0 && (
           <div className="empty-state">
-            <div className="empty-icon">📭</div>
+            <FileText size={48} className="empty-icon" />
             <h3>Материалы не найдены</h3>
             <p>Попробуйте изменить параметры фильтрации</p>
           </div>

@@ -11,7 +11,14 @@ import {
   Share2,
   Calendar,
   ArrowUp,
-  ArrowDown
+  ArrowDown,
+  Video,
+  Image,
+  Trophy,
+  BarChart3,
+  Lightbulb,
+  Zap,
+  PieChart
 } from 'lucide-react';
 import { mwsAPI } from '../services/api';
 import MWSDashboard from '../components/MWSDashboard';
@@ -95,14 +102,14 @@ const Dashboard = () => {
     count: stats.count,
     percentage: ((stats.count / analytics.summary.totalPosts) * 100).toFixed(1),
     avgViews: Math.round(stats.totalViews / stats.count),
-    color: type === 'video' ? '#ef4444' : type === 'post' ? '#3b82f6' : '#10b981'
+    color: type === 'video' ? '#dc2626' : type === 'post' ? '#dc2626' : '#dc2626'
   })) : [];
 
   // Анализ тональности
   const sentimentData = analytics ? [
-    { type: 'positive', value: Math.round(analytics.sentiment.positive * 100), color: '#10b981' },
-    { type: 'neutral', value: Math.round(analytics.sentiment.neutral * 100), color: '#6b7280' },
-    { type: 'negative', value: Math.round(analytics.sentiment.negative * 100), color: '#ef4444' }
+    { type: 'positive', value: Math.round(analytics.sentiment.positive * 100), color: '#dc2626' },
+    { type: 'neutral', value: Math.round(analytics.sentiment.neutral * 100), color: '#9ca3af' },
+    { type: 'negative', value: Math.round(analytics.sentiment.negative * 100), color: '#991b1b' }
   ] : [];
 
   if (loading) {
@@ -158,7 +165,7 @@ const Dashboard = () => {
         {/* Топ материалы */}
         <div className="card">
           <div className="card-header">
-            <h3>🚀 Топ материалы</h3>
+            <h3><Trophy size={20} style={{ marginRight: '8px', verticalAlign: 'middle' }} />Топ материалы</h3>
             <Link to="/content" className="view-all">Все материалы →</Link>
           </div>
           <div className="top-posts-list">
@@ -169,10 +176,10 @@ const Dashboard = () => {
                   <div className="post-title">{post.title}</div>
                   <div className="post-meta">
                     <span className={`post-type ${post.type}`}>
-                      {post.type === 'video' && '🎥'}
-                      {post.type === 'post' && '📝'}
-                      {post.type === 'image' && '🖼️'}
-                      {post.type}
+                      {post.type === 'video' && <Video size={14} />}
+                      {post.type === 'post' && <FileText size={14} />}
+                      {post.type === 'image' && <Image size={14} />}
+                      <span style={{ marginLeft: '4px' }}>{post.type === 'video' ? 'Видео' : post.type === 'post' ? 'Пост' : 'Изображение'}</span>
                     </span>
                   </div>
                   <div className="post-stats">
@@ -201,7 +208,7 @@ const Dashboard = () => {
         {/* Распределение по типам */}
         <div className="card">
           <div className="card-header">
-            <h3>📊 Типы контента</h3>
+            <h3><PieChart size={20} style={{ marginRight: '8px', verticalAlign: 'middle' }} />Типы контента</h3>
           </div>
           <div className="type-distribution">
             {typeDistribution.map((item, index) => (
@@ -240,7 +247,7 @@ const Dashboard = () => {
         {/* Анализ тональности */}
         <div className="card">
           <div className="card-header">
-            <h3>💬 Тональность комментариев</h3>
+            <h3><MessageCircle size={20} style={{ marginRight: '8px', verticalAlign: 'middle' }} />Тональность комментариев</h3>
           </div>
           <div className="sentiment-analysis">
             {sentimentData.map((item) => (
@@ -279,25 +286,25 @@ const Dashboard = () => {
         {/* Рекомендации AI */}
         <div className="card">
           <div className="card-header">
-            <h3>💡 Рекомендации AI</h3>
+            <h3><Lightbulb size={20} style={{ marginRight: '8px', verticalAlign: 'middle' }} />Рекомендации AI</h3>
           </div>
           <div className="recommendations">
             <div className="recommendation positive">
-              <div className="rec-icon">🎯</div>
+              <div className="rec-icon"><Video size={20} /></div>
               <div className="rec-content">
                 <strong>Видео контент</strong>
                 <p>Показывает на 25% выше вовлеченность. Рекомендуем увеличить долю видео до 40%</p>
               </div>
             </div>
             <div className="recommendation info">
-              <div className="rec-icon">⏰</div>
+              <div className="rec-icon"><Calendar size={20} /></div>
               <div className="rec-content">
                 <strong>Время публикации</strong>
                 <p>Пиковая активность в 18:00-20:00. Планируйте публикации на это время</p>
               </div>
             </div>
             <div className="recommendation warning">
-              <div className="rec-icon">📈</div>
+              <div className="rec-icon"><TrendingUp size={20} /></div>
               <div className="rec-content">
                 <strong>Вовлеченность</strong>
                 <p>Добавляйте вопросы в заголовки для увеличения комментариев на 200%</p>
@@ -310,7 +317,7 @@ const Dashboard = () => {
       {/* Быстрые действия */}
       <div className="card">
         <div className="card-header">
-          <h3>⚡ Быстрые действия</h3>
+          <h3><Zap size={20} style={{ marginRight: '8px', verticalAlign: 'middle' }} />Быстрые действия</h3>
         </div>
         <div className="quick-actions-grid">
           <Link to="/content" className="quick-action">

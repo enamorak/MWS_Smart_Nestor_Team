@@ -6,15 +6,17 @@ import {
   PieChart, 
   FileText, 
   Moon, 
-  Sun 
+  Sun,
+  Users
 } from 'lucide-react';
+import Notifications from './Notifications';
 
 const Navigation = ({ darkMode, setDarkMode }) => {
   const location = useLocation();
 
   const navItems = [
     { path: '/', icon: BarChart3, label: 'Дашборд' },
-    { path: '/networks', icon: BarChart3, label: 'Все сети' },
+    { path: '/networks', icon: Users, label: 'Все сети' },
     { path: '/content', icon: FileText, label: 'Контент' },
     { path: '/analytics', icon: PieChart, label: 'Аналитика' },
     { path: '/chat', icon: MessageCircle, label: 'AI Ассистент' }
@@ -23,7 +25,9 @@ const Navigation = ({ darkMode, setDarkMode }) => {
   return (
     <nav className="navbar">
       <div className="nav-brand">
-        <div className="logo">📊</div>
+        <div className="logo">
+          <BarChart3 size={24} />
+        </div>
         <h1>Content Registry</h1>
       </div>
       
@@ -46,6 +50,7 @@ const Navigation = ({ darkMode, setDarkMode }) => {
       </div>
 
       <div className="nav-actions">
+        <Notifications />
         <button
           onClick={() => setDarkMode(!darkMode)}
           className="theme-toggle"

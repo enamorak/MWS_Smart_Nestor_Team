@@ -53,7 +53,7 @@ const ChatInterface = () => {
 
       const botMessage = {
         id: Date.now() + 1,
-        text: response.data.response.text,
+        text: response.data?.response?.text || response.data?.response || 'Ответ получен',
         isUser: false,
         timestamp: new Date()
       };
