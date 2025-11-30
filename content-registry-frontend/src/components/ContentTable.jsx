@@ -83,7 +83,7 @@ const ContentTable = () => {
       ['эксперты', 'советы', 'профессионализм'], ['команда', 'культура', 'ценности']
     ];
     
-    for (let i = 0; i < 50; i++) {
+    for (let i = 0; i < 120; i++) {
       const daysAgo = Math.floor(Math.random() * 90);
       const date = new Date(now);
       date.setDate(date.getDate() - daysAgo);
@@ -171,7 +171,7 @@ const ContentTable = () => {
   };
 
   const getSortIcon = (field) => {
-    if (sortField !== field) return <ArrowUpDown size={14} />;
+    if (sortField !== field) return <ArrowUpDown size={14} strokeWidth={1.5} />;
     return sortDirection === 'asc' ? '↑' : '↓';
   };
 
@@ -179,8 +179,8 @@ const ContentTable = () => {
     switch (sentiment) {
       case 'positive': return '#dc2626';
       case 'negative': return '#991b1b';
-      case 'neutral': return '#6b7280';
-      default: return '#6b7280';
+      case 'neutral': return '#9ca3af';
+      default: return '#9ca3af';
     }
   };
 
@@ -195,10 +195,10 @@ const ContentTable = () => {
 
   const getTypeIcon = (type) => {
     switch (type) {
-      case 'video': return <Video size={16} />;
-      case 'post': return <FileText size={16} />;
-      case 'image': return <Image size={16} />;
-      default: return <FileText size={16} />;
+      case 'video': return <Video size={16} strokeWidth={1.5} />;
+      case 'post': return <FileText size={16} strokeWidth={1.5} />;
+      case 'image': return <Image size={16} strokeWidth={1.5} />;
+      default: return <FileText size={16} strokeWidth={1.5} />;
     }
   };
 
@@ -244,12 +244,12 @@ const ContentTable = () => {
       {/* Controls */}
       <div className="table-controls">
         <button onClick={loadContentData} className="btn-refresh" style={{ marginRight: 'auto' }}>
-          <RefreshCw size={16} />
+          <RefreshCw size={16} strokeWidth={1.5} />
           Обновить
         </button>
         <div className="control-group">
           <div className="search-box">
-            <Search size={18} />
+            <Search size={18} strokeWidth={1.5} />
             <input
               type="text"
               placeholder="Поиск по заголовку..."
@@ -260,7 +260,7 @@ const ContentTable = () => {
           
           <div className="filter-group">
             <div className="filter">
-              <Filter size={16} />
+              <Filter size={16} strokeWidth={1.5} />
               <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)}>
                 <option value="all">Все типы</option>
                 <option value="post">Посты</option>
@@ -270,7 +270,7 @@ const ContentTable = () => {
             </div>
             
             <div className="filter">
-              <Filter size={16} />
+              <Filter size={16} strokeWidth={1.5} />
               <select value={sentimentFilter} onChange={(e) => setSentimentFilter(e.target.value)}>
                 <option value="all">Любая тональность</option>
                 <option value="positive">Позитивная</option>
@@ -282,7 +282,7 @@ const ContentTable = () => {
         </div>
         
         <button className="export-btn" onClick={exportToCSV}>
-          <Download size={18} />
+          <Download size={18} strokeWidth={1.5} />
           Экспорт CSV
         </button>
       </div>
@@ -312,19 +312,19 @@ const ContentTable = () => {
               </th>
               <th onClick={() => handleSort('views')}>
                 <div className="th-content">
-                  <Eye size={16} />
+                  <Eye size={16} strokeWidth={1.5} />
                   <span className="sort-icon">{getSortIcon('views')}</span>
                 </div>
               </th>
               <th onClick={() => handleSort('likes')}>
                 <div className="th-content">
-                  <Heart size={16} />
+                  <Heart size={16} strokeWidth={1.5} />
                   <span className="sort-icon">{getSortIcon('likes')}</span>
                 </div>
               </th>
               <th onClick={() => handleSort('comments')}>
                 <div className="th-content">
-                  <MessageCircle size={16} />
+                  <MessageCircle size={16} strokeWidth={1.5} />
                   <span className="sort-icon">{getSortIcon('comments')}</span>
                 </div>
               </th>
@@ -420,7 +420,7 @@ const ContentTable = () => {
         
         {filteredAndSortedData.length === 0 && (
           <div className="empty-state">
-            <FileText size={48} className="empty-icon" />
+            <FileText size={48} strokeWidth={1.5} className="empty-icon" />
             <h3>Материалы не найдены</h3>
             <p>Попробуйте изменить параметры фильтрации</p>
           </div>

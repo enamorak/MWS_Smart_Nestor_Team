@@ -14,7 +14,39 @@ export const mwsAPI = {
 
   // Получить дашборды
   getDashboards: () => 
-    axios.get(`${API_BASE}/mws/dashboards`)
+    axios.get(`${API_BASE}/mws/dashboards`),
+
+  // Получить план публикаций
+  getPublicationPlan: (params) => 
+    axios.get(`${API_BASE}/mws/publications/plan`, { params }),
+
+  // Создать публикацию
+  createPublication: (data) => 
+    axios.post(`${API_BASE}/mws/publications`, data),
+
+  // Обновить публикацию
+  updatePublication: (id, data) => 
+    axios.put(`${API_BASE}/mws/publications/${id}`, data),
+
+  // Удалить публикацию
+  deletePublication: (id) => 
+    axios.delete(`${API_BASE}/mws/publications/${id}`),
+
+  // Получить задачи для диаграммы Ганта
+  getGanttTasks: (params) => 
+    axios.get(`${API_BASE}/mws/tasks/gantt`, { params }),
+
+  // Создать задачу
+  createTask: (data) => 
+    axios.post(`${API_BASE}/mws/tasks`, data),
+
+  // Обновить задачу
+  updateTask: (id, data) => 
+    axios.put(`${API_BASE}/mws/tasks/${id}`, data),
+
+  // Удалить задачу
+  deleteTask: (id) => 
+    axios.delete(`${API_BASE}/mws/tasks/${id}`)
 };
 
 // VK API

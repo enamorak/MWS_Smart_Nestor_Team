@@ -29,7 +29,7 @@ const Navigation = ({ darkMode, setDarkMode }) => {
     <nav className="navbar">
       <div className="nav-brand">
         <div className="logo">
-          <BarChart3 size={24} />
+          <BarChart3 size={24} strokeWidth={1.5} />
         </div>
         <h1>Content Registry</h1>
       </div>
@@ -45,7 +45,7 @@ const Navigation = ({ darkMode, setDarkMode }) => {
               to={item.path}
               className={`nav-link ${isActive ? 'active' : ''}`}
             >
-              <Icon size={20} />
+              <Icon size={20} strokeWidth={1.5} />
               <span>{item.label}</span>
             </Link>
           );
@@ -59,7 +59,7 @@ const Navigation = ({ darkMode, setDarkMode }) => {
           className="theme-toggle"
           title={darkMode ? 'Светлая тема' : 'Темная тема'}
         >
-          {darkMode ? <Sun size={20} /> : <Moon size={20} />}
+          {darkMode ? <Sun size={20} strokeWidth={1.5} /> : <Moon size={20} strokeWidth={1.5} />}
         </button>
       </div>
     </nav>

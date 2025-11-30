@@ -7,8 +7,6 @@ import {
   MessageCircle,
   FileText,
   RefreshCw,
-  Users,
-  Share2,
   Calendar,
   ArrowUp,
   ArrowDown,
@@ -18,15 +16,35 @@ import {
   BarChart3,
   Lightbulb,
   Zap,
-  PieChart
+  PieChart,
+  Sparkles,
+  Target,
+  Clock
 } from 'lucide-react';
+import {
+  LineChart,
+  Line,
+  AreaChart,
+  Area,
+  BarChart,
+  Bar,
+  PieChart as RechartsPieChart,
+  Pie,
+  Cell,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer
+} from 'recharts';
 import { mwsAPI } from '../services/api';
-import MWSDashboard from '../components/MWSDashboard';
 
 const Dashboard = () => {
   const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState(null);
+  const [timeRange, setTimeRange] = useState('30d');
 
   const loadAnalytics = async () => {
     try {
@@ -45,6 +63,26 @@ const Dashboard = () => {
     loadAnalytics();
   }, []);
 
+  // Генерация данных для графиков
+  const generateChartData = () => {
+    const days = timeRange === '30d' ? 30 : timeRange === '7d' ? 7 : 90;
+    const data = [];
+    for (let i = days - 1; i >= 0; i--) {
+      const date = new Date();
+      date.setDate(date.getDate() - i);
+      data.push({
+        date: date.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' }),
+        views: Math.floor(Math.random() * 5000) + 2000,
+        likes: Math.floor(Math.random() * 500) + 200,
+        comments: Math.floor(Math.random() * 100) + 50,
+        engagement: (Math.random() * 5 + 5).toFixed(1)
+      });
+    }
+    return data;
+  };
+
+  const chartData = generateChartData();
+
   // Статистические карточки
   const quickStats = analytics ? [
     { 
@@ -53,8 +91,7 @@ const Dashboard = () => {
       change: '+12%',
       trend: 'up',
       icon: FileText,
-      color: 'blue',
-      description: 'За все время'
+      color: '#dc2626'
     },
     { 
       title: 'Общий охват', 
@@ -62,17 +99,15 @@ const Dashboard = () => {
       change: '+8%',
       trend: 'up',
       icon: Eye,
-      color: 'blue',
-      description: 'Просмотры'
+      color: '#991b1b'
     },
     { 
       title: 'Вовлеченность', 
       value: `${analytics.summary.avgEngagement}%`, 
-      change: '+2%',
+      change: '+2.3%',
       trend: 'up',
-      icon: Heart,
-      color: 'blue',
-      description: 'Средний показатель'
+      icon: Target,
+      color: '#dc2626'
     },
     { 
       title: 'Комментарии', 
@@ -80,8 +115,7 @@ const Dashboard = () => {
       change: '+15%',
       trend: 'up',
       icon: MessageCircle,
-      color: 'blue',
-      description: 'Всего комментариев'
+      color: '#991b1b'
     }
   ] : [];
 
@@ -102,101 +136,196 @@ const Dashboard = () => {
     count: stats.count,
     percentage: ((stats.count / analytics.summary.totalPosts) * 100).toFixed(1),
     avgViews: Math.round(stats.totalViews / stats.count),
-    color: type === 'video' ? '#dc2626' : type === 'post' ? '#9ca3af' : '#d1d5db'
+    color: type === 'video' ? '#dc2626' : type === 'post' ? '#991b1b' : '#9ca3af'
   })) : [];
 
   // Анализ тональности
   const sentimentData = analytics ? [
-    { type: 'positive', value: Math.round(analytics.sentiment.positive * 100), color: '#dc2626' },
-    { type: 'neutral', value: Math.round(analytics.sentiment.neutral * 100), color: '#9ca3af' },
-    { type: 'negative', value: Math.round(analytics.sentiment.negative * 100), color: '#991b1b' }
+    { name: 'Позитивные', value: Math.round(analytics.sentiment.positive * 100), color: '#dc2626' },
+    { name: 'Нейтральные', value: Math.round(analytics.sentiment.neutral * 100), color: '#9ca3af' },
+    { name: 'Негативные', value: Math.round(analytics.sentiment.negative * 100), color: '#991b1b' }
   ] : [];
 
   if (loading) {
     return (
-      <div className="dashboard">
+      <div className="dashboard-modern">
         <div className="loading-state">
           <RefreshCw className="spinner" size={32} />
-          <p>Загрузка данных из MWS Tables...</p>
+          <p>Загрузка данных...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="dashboard">
+    <div className="dashboard-modern">
       {/* Заголовок */}
-      <div className="dashboard-header">
+      <div className="dashboard-header-modern">
         <div>
-          <h1>Главный дашборд</h1>
-          <p>Аналитика контента в реальном времени • {lastUpdated && `Обновлено: ${lastUpdated.toLocaleTimeString()}`}</p>
+          <h1>Дашборд</h1>
+          <p>Обзор вашей активности и аналитики</p>
         </div>
-        <button onClick={loadAnalytics} className="btn-refresh">
-          <RefreshCw size={16} />
-          Обновить данные
-        </button>
+        <div className="dashboard-actions">
+          <div className="time-range-selector">
+            <button 
+              className={timeRange === '7d' ? 'active' : ''} 
+              onClick={() => setTimeRange('7d')}
+            >
+              7 дней
+            </button>
+            <button 
+              className={timeRange === '30d' ? 'active' : ''} 
+              onClick={() => setTimeRange('30d')}
+            >
+              30 дней
+            </button>
+            <button 
+              className={timeRange === '90d' ? 'active' : ''} 
+              onClick={() => setTimeRange('90d')}
+            >
+              90 дней
+            </button>
+          </div>
+          <button onClick={loadAnalytics} className="btn-refresh-modern">
+            <RefreshCw size={18} strokeWidth={1.5} />
+            Обновить
+          </button>
+        </div>
       </div>
 
       {/* Ключевые метрики */}
-      <div className="stats-grid">
+      <div className="stats-grid-modern">
         {quickStats.map((stat, index) => {
           const Icon = stat.icon;
           return (
-            <div key={index} className={`stat-card stat-${stat.color}`}>
-              <div className="stat-header">
-                <div className="stat-icon">
+            <div key={index} className="stat-card-modern">
+              <div className="stat-card-background" style={{ background: `linear-gradient(135deg, ${stat.color}15 0%, ${stat.color}05 100%)` }}>
+                <div className="stat-icon-modern" style={{ backgroundColor: `${stat.color}20`, color: stat.color }}>
                   <Icon size={24} />
                 </div>
-                <div className={`stat-trend ${stat.trend}`}>
-                  {stat.trend === 'up' ? <ArrowUp size={16} /> : <ArrowDown size={16} />}
-                  {stat.change}
+                <div className="stat-content">
+                  <div className="stat-label">{stat.title}</div>
+                  <div className="stat-value-modern">{stat.value}</div>
+                  <div className="stat-change">
+                    {stat.trend === 'up' ? <ArrowUp size={14} strokeWidth={1.5} /> : <ArrowDown size={14} strokeWidth={1.5} />}
+                    <span className={stat.trend}>{stat.change}</span>
+                    <span className="stat-period">за период</span>
+                  </div>
                 </div>
               </div>
-              <div className="stat-value">{stat.value}</div>
-              <div className="stat-title">{stat.title}</div>
-              <div className="stat-description">{stat.description}</div>
             </div>
           );
         })}
       </div>
 
-      {/* Основная сетка */}
-      <div className="dashboard-grid">
-        {/* Топ материалы */}
-        <div className="card">
-          <div className="card-header">
-            <h3><Trophy size={20} style={{ marginRight: '8px', verticalAlign: 'middle' }} />Топ материалы</h3>
-            <Link to="/content" className="view-all">Все материалы →</Link>
+      {/* Графики */}
+      <div className="charts-grid-modern">
+        <div className="chart-card-modern">
+          <div className="chart-header">
+            <div>
+              <h3>Динамика метрик</h3>
+              <p>Просмотры, лайки и комментарии</p>
+            </div>
           </div>
-          <div className="top-posts-list">
+          <ResponsiveContainer width="100%" height={300}>
+            <AreaChart data={chartData}>
+              <defs>
+                <linearGradient id="colorViews" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#dc2626" stopOpacity={0.3}/>
+                  <stop offset="95%" stopColor="#dc2626" stopOpacity={0}/>
+                </linearGradient>
+                <linearGradient id="colorLikes" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#991b1b" stopOpacity={0.3}/>
+                  <stop offset="95%" stopColor="#991b1b" stopOpacity={0}/>
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+              <XAxis dataKey="date" stroke="#6b7280" />
+              <YAxis stroke="#6b7280" />
+              <Tooltip 
+                contentStyle={{ 
+                  backgroundColor: 'white', 
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '8px'
+                }} 
+              />
+              <Legend />
+              <Area type="monotone" dataKey="views" stroke="#dc2626" fillOpacity={1} fill="url(#colorViews)" name="Просмотры" />
+              <Area type="monotone" dataKey="likes" stroke="#991b1b" fillOpacity={1} fill="url(#colorLikes)" name="Лайки" />
+              <Line type="monotone" dataKey="comments" stroke="#9ca3af" strokeWidth={2} name="Комментарии" />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+
+        <div className="chart-card-modern">
+          <div className="chart-header">
+            <div>
+              <h3>Тональность</h3>
+              <p>Распределение комментариев</p>
+            </div>
+          </div>
+          <ResponsiveContainer width="100%" height={300}>
+            <RechartsPieChart>
+              <Pie
+                data={sentimentData}
+                cx="50%"
+                cy="50%"
+                labelLine={false}
+                label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                outerRadius={100}
+                fill="#8884d8"
+                dataKey="value"
+              >
+                {sentimentData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.color} />
+                ))}
+              </Pie>
+              <Tooltip />
+            </RechartsPieChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      {/* Топ материалы и типы контента */}
+      <div className="content-grid-modern">
+        <div className="content-card-modern">
+          <div className="content-card-header">
+            <div>
+              <Trophy size={20} strokeWidth={1.5} />
+              <h3>Топ материалы</h3>
+            </div>
+            <Link to="/content" className="view-all-link">Все материалы →</Link>
+          </div>
+          <div className="top-posts-list-modern">
             {topPosts.map((post, index) => (
-              <div key={post.id} className="top-post-item">
-                <div className="post-rank">#{index + 1}</div>
-                <div className="post-content">
-                  <div className="post-title">{post.title}</div>
-                  <div className="post-meta">
-                    <span className={`post-type ${post.type}`}>
-                      {post.type === 'video' && <Video size={14} />}
-                      {post.type === 'post' && <FileText size={14} />}
-                      {post.type === 'image' && <Image size={14} />}
-                      <span style={{ marginLeft: '4px' }}>{post.type === 'video' ? 'Видео' : post.type === 'post' ? 'Пост' : 'Изображение'}</span>
+              <div key={post.id} className="top-post-item-modern">
+                <div className="post-rank-modern">#{index + 1}</div>
+                <div className="post-content-modern">
+                  <div className="post-title-modern">{post.title}</div>
+                  <div className="post-meta-modern">
+                    <span className={`post-type-badge ${post.type}`}>
+                      {post.type === 'video' && <Video size={12} strokeWidth={1.5} />}
+                      {post.type === 'post' && <FileText size={12} strokeWidth={1.5} />}
+                      {post.type === 'image' && <Image size={12} strokeWidth={1.5} />}
+                      {post.type === 'video' ? 'Видео' : post.type === 'post' ? 'Пост' : 'Изображение'}
                     </span>
                   </div>
-                  <div className="post-stats">
-                    <div className="post-stat">
-                      <Eye size={14} />
+                  <div className="post-stats-modern">
+                    <div className="post-stat-modern">
+                      <Eye size={14} strokeWidth={1.5} />
                       <span>{post.views.toLocaleString()}</span>
                     </div>
-                    <div className="post-stat">
-                      <Heart size={14} />
+                    <div className="post-stat-modern">
+                      <Heart size={14} strokeWidth={1.5} />
                       <span>{post.likes}</span>
                     </div>
-                    <div className="post-stat">
-                      <MessageCircle size={14} />
+                    <div className="post-stat-modern">
+                      <MessageCircle size={14} strokeWidth={1.5} />
                       <span>{post.comments}</span>
                     </div>
-                    <div className="post-stat engagement">
-                      <span>{post.engagement}% вовлеченность</span>
+                    <div className="post-engagement-modern">
+                      <Target size={14} strokeWidth={1.5} />
+                      <span>{post.engagement}%</span>
                     </div>
                   </div>
                 </div>
@@ -205,147 +334,124 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Распределение по типам */}
-        <div className="card">
-          <div className="card-header">
-            <h3><PieChart size={20} style={{ marginRight: '8px', verticalAlign: 'middle' }} />Типы контента</h3>
+        <div className="content-card-modern">
+          <div className="content-card-header">
+            <div>
+              <PieChart size={20} strokeWidth={1.5} />
+              <h3>Типы контента</h3>
+            </div>
           </div>
-          <div className="type-distribution">
+          <div className="type-distribution-modern">
             {typeDistribution.map((item, index) => (
-              <div key={item.type} className="type-item">
-                <div className="type-info">
-                  <div className="type-header">
-                    <span 
-                      className="type-color" 
+              <div key={item.type} className="type-item-modern">
+                <div className="type-header-modern">
+                  <div className="type-info-modern">
+                    <div 
+                      className="type-dot" 
                       style={{ backgroundColor: item.color }}
-                    ></span>
-                    <span className="type-name">{item.type}</span>
+                    ></div>
+                    <span className="type-name-modern">{item.type === 'video' ? 'Видео' : item.type === 'post' ? 'Посты' : 'Изображения'}</span>
                   </div>
-                  <span className="type-percentage">{item.percentage}%</span>
+                  <span className="type-percentage-modern">{item.percentage}%</span>
                 </div>
-                <div className="type-details">
-                  <span className="type-count">{item.count} материалов</span>
-                  <span className="type-avg">~{item.avgViews} просмотров</span>
-                </div>
-                <div className="type-bar">
+                <div className="type-bar-modern">
                   <div 
-                    className="type-fill"
+                    className="type-fill-modern"
                     style={{ 
                       width: `${item.percentage}%`,
                       backgroundColor: item.color
                     }}
                   ></div>
                 </div>
+                <div className="type-details-modern">
+                  <span>{item.count} материалов</span>
+                  <span>~{item.avgViews.toLocaleString()} просмотров</span>
+                </div>
               </div>
             ))}
           </div>
         </div>
       </div>
 
-      {/* Вторая сетка */}
-      <div className="dashboard-grid">
-        {/* Анализ тональности */}
-        <div className="card">
-          <div className="card-header">
-            <h3><MessageCircle size={20} style={{ marginRight: '8px', verticalAlign: 'middle' }} />Тональность комментариев</h3>
-          </div>
-          <div className="sentiment-analysis">
-            {sentimentData.map((item) => (
-              <div key={item.type} className={`sentiment-item ${item.type}`}>
-                <div className="sentiment-header">
-                  <div className="sentiment-info">
-                    <div 
-                      className="sentiment-color" 
-                      style={{ backgroundColor: item.color }}
-                    ></div>
-                    <span className="sentiment-type">
-                      {item.type === 'positive' && 'Позитивные'}
-                      {item.type === 'neutral' && 'Нейтральные'}
-                      {item.type === 'negative' && 'Негативные'}
-                    </span>
-                  </div>
-                  <span className="sentiment-value">{item.value}%</span>
-                </div>
-                <div className="sentiment-bar">
-                  <div 
-                    className="sentiment-fill"
-                    style={{ 
-                      width: `${item.value}%`,
-                      backgroundColor: item.color
-                    }}
-                  ></div>
-                </div>
-              </div>
-            ))}
-          </div>
-          <div className="sentiment-summary">
-            <p>Большинство комментариев положительные, что указывает на хорошее восприятие контента аудиторией.</p>
+      {/* Рекомендации */}
+      <div className="recommendations-card-modern">
+        <div className="content-card-header">
+          <div>
+            <Lightbulb size={20} strokeWidth={1.5} />
+            <h3>Персональные рекомендации</h3>
           </div>
         </div>
-
-        {/* Рекомендации AI */}
-        <div className="card">
-          <div className="card-header">
-            <h3><Lightbulb size={20} style={{ marginRight: '8px', verticalAlign: 'middle' }} />Рекомендации AI</h3>
-          </div>
-          <div className="recommendations">
-            <div className="recommendation positive">
-              <div className="rec-icon"><Video size={20} /></div>
-              <div className="rec-content">
-                <strong>Видео контент</strong>
-                <p>Показывает на 25% выше вовлеченность. Рекомендуем увеличить долю видео до 40%</p>
-              </div>
+        <div className="recommendations-grid-modern">
+          <div className="recommendation-item-modern positive">
+            <div className="rec-icon-modern">
+              <Video size={24} strokeWidth={1.5} />
             </div>
-            <div className="recommendation info">
-              <div className="rec-icon"><Calendar size={20} /></div>
-              <div className="rec-content">
-                <strong>Время публикации</strong>
-                <p>Пиковая активность в 18:00-20:00. Планируйте публикации на это время</p>
-              </div>
-            </div>
-            <div className="recommendation warning">
-              <div className="rec-icon"><TrendingUp size={20} /></div>
-              <div className="rec-content">
-                <strong>Вовлеченность</strong>
-                <p>Добавляйте вопросы в заголовки для увеличения комментариев на 200%</p>
-              </div>
+            <div className="rec-content-modern">
+              <strong>Видео контент</strong>
+              <p>Показывает на 25% выше вовлеченность. Рекомендуем увеличить долю видео до 40%</p>
             </div>
           </div>
-        </div>
-      </div>
-
-      {/* Быстрые действия */}
-      <div className="card">
-        <div className="card-header">
-          <h3><Zap size={20} style={{ marginRight: '8px', verticalAlign: 'middle' }} />Быстрые действия</h3>
-        </div>
-        <div className="quick-actions-grid">
-          <Link to="/content" className="quick-action">
-            <FileText size={24} />
-            <div className="action-content">
-              <span className="action-title">Управление контентом</span>
-              <span className="action-description">Просмотр и редактирование материалов</span>
+          <div className="recommendation-item-modern info">
+            <div className="rec-icon-modern">
+              <Clock size={24} strokeWidth={1.5} />
             </div>
-          </Link>
-          <Link to="/analytics" className="quick-action">
-            <TrendingUp size={24} />
-            <div className="action-content">
-              <span className="action-title">Детальная аналитика</span>
-              <span className="action-description">Графики и глубокий анализ</span>
+            <div className="rec-content-modern">
+              <strong>Время публикации</strong>
+              <p>Пиковая активность в 18:00-20:00. Планируйте публикации на это время</p>
             </div>
-          </Link>
-          <Link to="/chat" className="quick-action">
-            <MessageCircle size={24} />
-            <div className="action-content">
-              <span className="action-title">AI Ассистент</span>
-              <span className="action-description">Задавайте вопросы о контенте</span>
+          </div>
+          <div className="recommendation-item-modern warning">
+            <div className="rec-icon-modern">
+              <TrendingUp size={24} strokeWidth={1.5} />
             </div>
-          </Link>
-          <div className="quick-action">
-            <Calendar size={24} />
-            <div className="action-content">
-              <span className="action-title">Планировщик</span>
-              <span className="action-description">Запланируйте публикации</span>
+            <div className="rec-content-modern">
+              <strong>Вовлеченность</strong>
+              <p>Добавляйте вопросы в заголовки для увеличения комментариев на 200%</p>
+            </div>
+          </div>
+          <div className="recommendation-item-modern positive">
+            <div className="rec-icon-modern">
+              <Target size={24} strokeWidth={1.5} />
+            </div>
+            <div className="rec-content-modern">
+              <strong>Целевая аудитория</strong>
+              <p>Ваши посты о продуктах получают на 40% больше лайков. Сфокусируйтесь на этом контенте</p>
+            </div>
+          </div>
+          <div className="recommendation-item-modern info">
+            <div className="rec-icon-modern">
+              <MessageCircle size={24} strokeWidth={1.5} />
+            </div>
+            <div className="rec-content-modern">
+              <strong>Взаимодействие</strong>
+              <p>Отвечайте на комментарии в первые 2 часа - это увеличивает вовлеченность на 60%</p>
+            </div>
+          </div>
+          <div className="recommendation-item-modern warning">
+            <div className="rec-icon-modern">
+              <Calendar size={24} strokeWidth={1.5} />
+            </div>
+            <div className="rec-content-modern">
+              <strong>Частота публикаций</strong>
+              <p>Публикуйте 3-4 раза в неделю для оптимального охвата аудитории</p>
+            </div>
+          </div>
+          <div className="recommendation-item-modern positive">
+            <div className="rec-icon-modern">
+              <Image size={24} strokeWidth={1.5} />
+            </div>
+            <div className="rec-content-modern">
+              <strong>Визуальный контент</strong>
+              <p>Посты с изображениями получают на 35% больше просмотров. Добавляйте качественные фото</p>
+            </div>
+          </div>
+          <div className="recommendation-item-modern info">
+            <div className="rec-icon-modern">
+              <FileText size={24} strokeWidth={1.5} />
+            </div>
+            <div className="rec-content-modern">
+              <strong>Длина текста</strong>
+              <p>Оптимальная длина поста - 150-200 слов. Такие посты показывают лучшую вовлеченность</p>
             </div>
           </div>
         </div>
