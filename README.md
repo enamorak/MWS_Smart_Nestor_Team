@@ -55,7 +55,7 @@ Content Registry - это комплексная платформа для уп�
 - Node.js
 - Express 4.18.2
 - Axios 1.6.0
-- OpenRouter API (AI)
+- Google Generative AI / Gemini API (AI)
 - MWS Tables API
 
 ---
@@ -133,7 +133,7 @@ MWS_Smart_Nestor_Team/
 │   │   └── vkRoutes.js                 # Маршруты для VK
 │   │
 │   ├── services/                       # Бизнес-логика и интеграции
-│   │   ├── aiService.js                # Сервис для работы с AI (OpenRouter)
+│   │   ├── aiService.js                # Сервис для работы с AI (Google Gemini)
 │   │   ├── api.js                      # Общие API утилиты
 │   │   ├── mwsService.js               # Сервис для работы с MWS Tables
 │   │   ├── notificationService.js      # Сервис уведомлений
@@ -202,7 +202,7 @@ MWS_Smart_Nestor_Team/
 **`services/`** - Бизнес-логика
 - Взаимодействие с внешними API
 - Обработка данных
-- Интеграции с MWS Tables, OpenRouter, VK и др.
+- Интеграции с MWS Tables, Google Gemini, VK и др.
 
 **`routes/`** - Определение API endpoints
 - RESTful маршруты
@@ -275,8 +275,10 @@ MWS_API_KEY=your_mws_api_key_here
 MWS_APP_ID=your_mws_app_id_here
 MWS_BASE_URL=https://api.mws.tables
 
-# OpenRouter API (для AI ассистента)
-OPENROUTER_API_KEY=your_openrouter_api_key_here
+# Google AI / Gemini API (для AI ассистента)
+GOOGLE_AI_API_KEY=your_google_ai_api_key_here
+# или
+GEMINI_API_KEY=your_gemini_api_key_here
 
 # VK API (опционально)
 VK_SERVICE_TOKEN=your_vk_service_token_here
@@ -389,8 +391,8 @@ npm run preview
         ┌───────────────┼───────────────┐
         │               │               │
 ┌───────▼──────┐ ┌──────▼──────┐ ┌──────▼──────┐
-│  MWS Tables  │ │ OpenRouter  │ │ Social APIs│
-│     API      │ │     API     │ │  (VK, etc) │
+│  MWS Tables  │ │ Google AI   │ │ Social APIs│
+│     API      │ │   Gemini    │ │  (VK, etc) │
 └──────────────┘ └─────────────┘ └────────────┘
 ```
 
@@ -454,7 +456,7 @@ content-registry-backend/
 │   └── analyticsController.js # Аналитика
 ├── services/                 # Бизнес-логика
 │   ├── mwsService.js        # Интеграция с MWS Tables
-│   ├── aiService.js         # AI сервис (OpenRouter)
+│   ├── aiService.js         # AI сервис (Google Gemini)
 │   └── socialNetworksService.js # Социальные сети
 ├── routes/                  # Маршруты API
 │   └── index.js            # Определение endpoints
@@ -484,10 +486,10 @@ content-registry-backend/
 Frontend ← Backend API ← MWS Tables API ← Дашборды MWS
 ```
 
-#### 4. AI Service (OpenRouter)
+#### 4. AI Service (Google Gemini)
 
 **Интеграция:**
-- Использует OpenRouter API для доступа к LLM моделям
+- Использует Google Generative AI (Gemini) для доступа к LLM моделям
 - Fallback система для работы без API ключа
 - Умные промпты для маркетинга и аналитики
 - Контекстные ответы на основе данных MWS Tables
@@ -507,7 +509,7 @@ User Question → BotController → AIService
                                       ↓
                             ┌─────────┴─────────┐
                             │                   │
-                    OpenRouter API      Smart Fallback
+                    Google Gemini API   Smart Fallback
                     (если есть ключ)    (всегда работает)
                             │                   │
                             └─────────┬─────────┘
@@ -546,7 +548,7 @@ User Input → POST /api/bot/message
                 ↓
       ┌─────────┴─────────┐
       │                   │
-OpenRouter API    Smart Fallback
+Google Gemini API    Smart Fallback
       │                   │
       └─────────┬─────────┘
                 ↓
@@ -604,7 +606,7 @@ Data Stored in content_registry
 ### Интеграции
 
 1. **MWS Tables** - основной источник данных
-2. **OpenRouter** - AI модели (опционально)
+2. **Google Generative AI (Gemini)** - AI модели (опционально)
 3. **VK API** - данные из VKontakte
 4. **Telegram API** - данные из Telegram
 5. **Instagram API** - данные из Instagram (через парсинг)
@@ -954,15 +956,19 @@ async syncNetworkData(networkId, data) {
 4. **Доступность** - данные доступны через API
 5. **Управление** - можно редактировать данные прямо в MWS Tables
 
-### OpenRouter (AI)
+### Google Generative AI / Gemini (AI)
 
-1. Зарегистрируйтесь на https://openrouter.ai
+1. Зарегистрируйтесь на https://makersuite.google.com/app/apikey или https://ai.google.dev/
 2. Получите API ключ
 3. Добавьте в `.env`:
    ```env
-   OPENROUTER_API_KEY=your_key
+   GOOGLE_AI_API_KEY=your_key
    ```
-4. AI ассистент будет использовать бесплатную модель Llama 3
+   или
+   ```env
+   GEMINI_API_KEY=your_key
+   ```
+4. AI ассистент будет использовать модель Gemini Pro
 
 ### VK API
 
@@ -1026,12 +1032,12 @@ npm test
 ### Проблема: AI ассистент не отвечает
 
 **Причины:**
-- Не настроен OPENROUTER_API_KEY
+- Не настроен GOOGLE_AI_API_KEY или GEMINI_API_KEY
 - Проблемы с сетью
 - Неправильный формат ответа
 
 **Решение:**
-1. Проверьте наличие `OPENROUTER_API_KEY` в `.env`
+1. Проверьте наличие `GOOGLE_AI_API_KEY` или `GEMINI_API_KEY` в `.env`
 2. Проверьте консоль браузера на ошибки
 3. Проверьте логи backend сервера
 4. Приложение автоматически использует fallback ответы
@@ -1104,8 +1110,9 @@ npm install recharts
 
 Да, измените модель в `services/aiService.js`:
 ```javascript
-model: "meta-llama/llama-3-8b-instruct:free"
+this.model = this.genAI ? this.genAI.getGenerativeModel({ model: 'gemini-pro' }) : null;
 ```
+Доступные модели: `gemini-pro`, `gemini-pro-vision`, и другие модели Gemini.
 
 ### Как изменить цветовую схему?
 
@@ -1148,7 +1155,7 @@ MWS Smart Nestor Team
 
 - [Документация по API социальных сетей](./SOCIAL_MEDIA_APIS.md)
 - [MWS Tables Documentation](https://mws.tables/docs) (если доступна)
-- [OpenRouter Documentation](https://openrouter.ai/docs)
+- [Google Generative AI Documentation](https://ai.google.dev/docs)
 - [React Documentation](https://react.dev)
 - [Express Documentation](https://expressjs.com)
 

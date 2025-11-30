@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
-import { Send, Bot, User } from 'lucide-react';
+import { Send, Bot, User, ChevronDown, ChevronUp } from 'lucide-react';
 
 const ChatInterface = () => {
   const [messages, setMessages] = useState([
@@ -13,6 +13,7 @@ const ChatInterface = () => {
   ]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showExamples, setShowExamples] = useState(true);
   const messagesEndRef = useRef(null);
 
   const exampleQuestions = [
@@ -208,19 +209,30 @@ const ChatInterface = () => {
       </div>
 
       <div className="examples-section">
-        <h4>Примеры вопросов:</h4>
-        <div className="examples-grid">
-          {exampleQuestions.map((question, index) => (
-            <button
-              key={index}
-              className="example-question"
-              onClick={() => handleExampleClick(question)}
-              disabled={isLoading}
-            >
-              {question}
-            </button>
-          ))}
+        <div className="examples-header" onClick={() => setShowExamples(!showExamples)}>
+          <h4>Примеры вопросов:</h4>
+          <button 
+            className="toggle-examples-button"
+            type="button"
+            aria-label={showExamples ? "Скрыть примеры" : "Показать примеры"}
+          >
+            {showExamples ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+          </button>
         </div>
+        {showExamples && (
+          <div className="examples-grid">
+            {exampleQuestions.map((question, index) => (
+              <button
+                key={index}
+                className="example-question"
+                onClick={() => handleExampleClick(question)}
+                disabled={isLoading}
+              >
+                {question}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="input-section">

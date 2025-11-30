@@ -1,9 +1,10 @@
-const axios = require('axios');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 class AIService {
   constructor() {
-    this.apiKey = process.env.OPENROUTER_API_KEY;
-    this.baseURL = 'https://openrouter.ai/api/v1';
+    this.apiKey = process.env.GOOGLE_AI_API_KEY || process.env.GEMINI_API_KEY;
+    this.genAI = this.apiKey ? new GoogleGenerativeAI(this.apiKey) : null;
+    this.model = this.genAI ? this.genAI.getGenerativeModel({ model: 'gemini-pro' }) : null;
   }
 
   async analyzeSentiment(comments) {
@@ -23,32 +24,25 @@ class AIService {
 
       const prompt = this.createSentimentAnalysisPrompt(commentTexts);
 
-      const response = await axios.post(`${this.baseURL}/chat/completions`, {
-        model: "meta-llama/llama-3-8b-instruct:free", // Бесплатная модель
-        messages: [
-          {
-            role: "system",
-            content: "Ты - аналитик социальных медиа. Анализируй тональность комментариев и выявляй ключевые темы. Возвращай ответ в формате JSON."
-          },
-          {
-            role: "user",
-            content: prompt
+      if (this.model && this.apiKey) {
+        try {
+          const result = await this.model.generateContent(prompt);
+          const response = await result.response;
+          const text = response.text();
+          
+          // Пытаемся распарсить JSON из ответа
+          const jsonMatch = text.match(/\{[\s\S]*\}/);
+          if (jsonMatch) {
+            return JSON.parse(jsonMatch[0]);
           }
-        ],
-        response_format: { type: "json_object" },
-        max_tokens: 1000
-      }, {
-        headers: {
-          'Authorization': `Bearer ${this.apiKey}`,
-          'Content-Type': 'application/json',
-          'HTTP-Referer': 'https://content-registry.com', // Для рейтингов OpenRouter
-          'X-Title': 'Content Registry AI' // Для рейтингов OpenRouter
+        } catch (error) {
+          console.error('Google AI Analysis Error:', error.message);
         }
-      });
+      }
 
-      return JSON.parse(response.data.choices[0].message.content);
+      return this.getDefaultSentimentAnalysis();
     } catch (error) {
-      console.error('AI Analysis Error:', error.response?.data || error.message);
+      console.error('AI Analysis Error:', error.message);
       return this.getDefaultSentimentAnalysis();
     }
   }
@@ -56,33 +50,27 @@ class AIService {
   async predictPopularity(contentData) {
     try {
       const prompt = this.createPredictionPrompt(contentData);
+      const fullPrompt = `Ты - эксперт по прогнозированию популярности контента в социальных сетях. Анализируй контент и давай реалистичные прогнозы на основе исторических данных. Возвращай ответ в формате JSON.\n\n${prompt}`;
 
-      const response = await axios.post(`${this.baseURL}/chat/completions`, {
-        model: "meta-llama/llama-3-8b-instruct:free",
-        messages: [
-          {
-            role: "system",
-            content: "Ты - эксперт по прогнозированию популярности контента в социальных сетях. Анализируй контент и давай реалистичные прогнозы на основе исторических данных."
-          },
-          {
-            role: "user",
-            content: prompt
+      if (this.model && this.apiKey) {
+        try {
+          const result = await this.model.generateContent(fullPrompt);
+          const response = await result.response;
+          const text = response.text();
+          
+          // Пытаемся распарсить JSON из ответа
+          const jsonMatch = text.match(/\{[\s\S]*\}/);
+          if (jsonMatch) {
+            return JSON.parse(jsonMatch[0]);
           }
-        ],
-        response_format: { type: "json_object" },
-        max_tokens: 800
-      }, {
-        headers: {
-          'Authorization': `Bearer ${this.apiKey}`,
-          'Content-Type': 'application/json',
-          'HTTP-Referer': 'https://content-registry.com',
-          'X-Title': 'Content Registry AI'
+        } catch (error) {
+          console.error('Google AI Prediction Error:', error.message);
         }
-      });
+      }
 
-      return JSON.parse(response.data.choices[0].message.content);
+      return this.getDefaultPrediction();
     } catch (error) {
-      console.error('Prediction Error:', error.response?.data || error.message);
+      console.error('Prediction Error:', error.message);
       return this.getDefaultPrediction();
     }
   }
@@ -92,50 +80,20 @@ class AIService {
     // Это гарантирует работу даже без API ключа
     console.log('Generating bot response for:', userQuestion.substring(0, 50));
     
-    // Если есть API ключ, пробуем использовать его
-    if (this.apiKey) {
+    // Если есть API ключ и модель, пробуем использовать Google Gemini
+    if (this.model && this.apiKey) {
       try {
         const prompt = this.createBotPrompt(userQuestion, contextData);
 
-        const response = await axios.post(`${this.baseURL}/chat/completions`, {
-          model: "meta-llama/llama-3-8b-instruct:free",
-          messages: [
-            {
-              role: "system",
-              content: `Ты - AI ассистент для анализа контента в социальных сетях. Отвечай полезно и точно на основе предоставленных данных.
+        const result = await this.model.generateContent(prompt);
+        const response = await result.response;
+        const text = response.text();
 
-Контекстные данные:
-${JSON.stringify(contextData, null, 2)}
-
-Твоя роль:
-- Анализировать статистику контента
-- Давать рекомендации по улучшению
-- Объяснять тренды и паттерны
-- Отвечать на вопросы о метриках
-
-Будь дружелюбным, профессиональным и конкретным в ответах.`
-            },
-            {
-              role: "user",
-              content: userQuestion
-            }
-          ],
-          max_tokens: 500
-        }, {
-          headers: {
-            'Authorization': `Bearer ${this.apiKey}`,
-            'Content-Type': 'application/json',
-            'HTTP-Referer': 'https://content-registry.com',
-            'X-Title': 'Content Registry AI'
-          },
-          timeout: 10000
-        });
-
-        if (response.data && response.data.choices && response.data.choices[0]) {
-          return response.data.choices[0].message.content;
+        if (text) {
+          return text;
         }
       } catch (error) {
-        console.log('API call failed, using smart fallback:', error.message);
+        console.log('Google AI API call failed, using smart fallback:', error.message);
       }
     }
     
@@ -147,33 +105,27 @@ ${JSON.stringify(contextData, null, 2)}
   async analyzeContentPerformance(contentData, historicalData) {
     try {
       const prompt = this.createContentAnalysisPrompt(contentData, historicalData);
+      const fullPrompt = `Ты - эксперт по анализу эффективности контента. Анализируй данные и предоставляй детальные insights и рекомендации. Возвращай ответ в формате JSON.\n\n${prompt}`;
 
-      const response = await axios.post(`${this.baseURL}/chat/completions`, {
-        model: "meta-llama/llama-3-8b-instruct:free",
-        messages: [
-          {
-            role: "system",
-            content: "Ты - эксперт по анализу эффективности контента. Анализируй данные и предоставляй детальные insights и рекомендации."
-          },
-          {
-            role: "user",
-            content: prompt
+      if (this.model && this.apiKey) {
+        try {
+          const result = await this.model.generateContent(fullPrompt);
+          const response = await result.response;
+          const text = response.text();
+          
+          // Пытаемся распарсить JSON из ответа
+          const jsonMatch = text.match(/\{[\s\S]*\}/);
+          if (jsonMatch) {
+            return JSON.parse(jsonMatch[0]);
           }
-        ],
-        response_format: { type: "json_object" },
-        max_tokens: 1000
-      }, {
-        headers: {
-          'Authorization': `Bearer ${this.apiKey}`,
-          'Content-Type': 'application/json',
-          'HTTP-Referer': 'https://content-registry.com',
-          'X-Title': 'Content Registry AI'
+        } catch (error) {
+          console.error('Google AI Content Analysis Error:', error.message);
         }
-      });
+      }
 
-      return JSON.parse(response.data.choices[0].message.content);
+      return this.getDefaultContentAnalysis();
     } catch (error) {
-      console.error('Content Analysis Error:', error.response?.data || error.message);
+      console.error('Content Analysis Error:', error.message);
       return this.getDefaultContentAnalysis();
     }
   }
@@ -233,15 +185,23 @@ ${comments.map((comment, index) => `${index + 1}. ${comment}`).join('\n')}
   }
 
   createBotPrompt(userQuestion, contextData) {
-    return `
-Пользователь задает вопрос о контенте: "${userQuestion}"
+    return `Ты - AI ассистент для анализа контента в социальных сетях. Отвечай полезно и точно на основе предоставленных данных.
 
-Контекстные данные для анализа:
+Контекстные данные:
 ${JSON.stringify(contextData, null, 2)}
 
+Твоя роль:
+- Анализировать статистику контента
+- Давать рекомендации по улучшению
+- Объяснять тренды и паттерны
+- Отвечать на вопросы о метриках
+
+Будь дружелюбным, профессиональным и конкретным в ответах.
+
+Пользователь задает вопрос: "${userQuestion}"
+
 Ответь на вопрос пользователя ясно и полезно. Если нужны конкретные цифры - используй данные из контекста. 
-Будь дружелюбным и профессиональным. Структурируй ответ, выделяй ключевые моменты.
-    `;
+Будь дружелюбным и профессиональным. Структурируй ответ, выделяй ключевые моменты.`;
   }
 
   createContentAnalysisPrompt(contentData, historicalData) {
@@ -908,7 +868,7 @@ ${postsList}
     };
   }
 
-  // Метод для проверки подключения к OpenRouter
+  // Метод для проверки подключения к Google AI
   async checkConnection() {
     // Всегда возвращаем, что сервис работает (через fallback)
     return {
@@ -916,7 +876,7 @@ ${postsList}
       status: 'operational',
       mode: this.apiKey ? 'api' : 'fallback',
       message: this.apiKey 
-        ? 'API подключен, используется OpenRouter' 
+        ? 'API подключен, используется Google Gemini' 
         : 'Используется умный fallback (работает без API ключа)'
     };
   }

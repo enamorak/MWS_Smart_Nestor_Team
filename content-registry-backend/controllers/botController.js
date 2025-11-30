@@ -149,7 +149,7 @@ class BotController {
       
       res.json({
         success: true,
-        ai_service: 'OpenRouter',
+        ai_service: 'Google Gemini',
         connected: status.connected,
         status: status.connected ? 'operational' : 'offline',
         response_time: new Date().toISOString(),
@@ -158,7 +158,7 @@ class BotController {
     } catch (error) {
       res.json({
         success: false,
-        ai_service: 'OpenRouter',
+        ai_service: 'Google Gemini',
         connected: false,
         status: 'offline',
         error: error.message

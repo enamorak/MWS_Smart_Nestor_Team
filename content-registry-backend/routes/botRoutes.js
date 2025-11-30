@@ -3,7 +3,7 @@ const router = express.Router();
 const botController = require('../controllers/botController');
 
 // Handle bot messages
-router.post('/message', botController.handleMessage);
+router.post('/message', botController.handleMessage.bind(botController));
 
 // Get conversation history (simplified)
 router.get('/conversations', (req, res) => {
@@ -34,5 +34,8 @@ router.get('/capabilities', (req, res) => {
     ]
   });
 });
+
+// Get AI status
+router.get('/status', botController.getAIStatus.bind(botController));
 
 module.exports = router;
