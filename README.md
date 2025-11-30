@@ -1,6 +1,7 @@
 # Content Registry - Умный реестр контента с AI-аналитикой by Nestor Team
 
 > Веб-приложение для управления и анализа контента из всех социальных сетей с интегрированным AI-ассистентом и дашбордами MWS Tables.
+> Скринкаст: https://drive.google.com/file/d/1DlJblwH_qhtYlclU4gxBSQeONBvqdCl7/view?usp=sharing
 
 ## О команде
 
