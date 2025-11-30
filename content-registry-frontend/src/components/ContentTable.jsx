@@ -55,73 +55,83 @@ const ContentTable = () => {
     }
   };
 
-  const getMockData = () => [
-    {
-      id: 1,
-      title: 'Обзор нового продукта 2025',
-      type: 'video',
-      date: '2025-11-29',
-      views: 12500,
-      likes: 245,
-      comments: 34,
-      reposts: 12,
-      sentiment: 'positive',
-      engagement: 4.2,
-      themes: ['продукт', 'обзор', 'новинка']
-    },
-    {
-      id: 2,
-      title: 'Акция недели - скидки до 50%',
-      type: 'post',
-      date: '2025-11-28',
-      views: 8900,
-      likes: 156,
-      comments: 89,
-      reposts: 8,
-      sentiment: 'negative',
-      engagement: 2.1,
-      themes: ['акция', 'скидки', 'цены']
-    },
-    {
-      id: 3,
-      title: 'За кулисами производства',
-      type: 'image',
-      date: '2025-11-27',
-      views: 15600,
-      likes: 312,
-      comments: 45,
-      reposts: 23,
-      sentiment: 'positive',
-      engagement: 5.8,
-      themes: ['производство', 'закулисье', 'качество']
-    },
-    {
-      id: 4,
-      title: 'Интервью с основателем',
-      type: 'video',
-      date: '2025-11-26',
-      views: 9800,
-      likes: 198,
-      comments: 28,
-      reposts: 15,
-      sentiment: 'positive',
-      engagement: 4.8,
-      themes: ['интервью', 'основатель', 'история']
-    },
-    {
-      id: 5,
-      title: 'Отзывы клиентов',
-      type: 'post',
-      date: '2025-11-25',
-      views: 7200,
-      likes: 124,
-      comments: 67,
-      reposts: 6,
-      sentiment: 'neutral',
-      engagement: 3.2,
-      themes: ['отзывы', 'клиенты', 'опыт']
+  const getMockData = () => {
+    const now = new Date();
+    const mockData = [];
+    const titles = [
+      'Обзор нового продукта 2025', 'Акция недели - скидки до 50%', 'За кулисами производства',
+      'Интервью с основателем', 'Отзывы клиентов', 'Новинка сезона', 'Мастер-класс по использованию',
+      'История успеха клиента', 'Советы от экспертов', 'Презентация коллекции',
+      'Встреча с командой', 'День открытых дверей', 'Специальное предложение',
+      'Обновление сервиса', 'Партнерство с брендом', 'Эксклюзивное интервью',
+      'Тренды индустрии', 'Секреты успеха', 'Кейс-стади', 'FAQ от пользователей',
+      'Видео-обзор функций', 'Сравнение продуктов', 'Руководство для новичков',
+      'Продвинутые техники', 'Вдохновляющие истории', 'Практические советы',
+      'Разбор ошибок', 'Лучшие практики', 'Инновации в отрасли', 'Мотивационные посты',
+      'Стрим с экспертом', 'Вопрос-ответ сессия', 'Демонстрация возможностей',
+      'Клиентские истории', 'Образовательный контент', 'Развлекательный контент',
+      'Новости компании', 'Анонсы событий', 'Поздравления', 'Благодарности'
+    ];
+    
+    const types = ['video', 'post', 'image'];
+    const sentiments = ['positive', 'neutral', 'negative'];
+    const themesList = [
+      ['продукт', 'обзор', 'новинка'], ['акция', 'скидки', 'цены'],
+      ['производство', 'закулисье', 'качество'], ['интервью', 'основатель', 'история'],
+      ['отзывы', 'клиенты', 'опыт'], ['новинка', 'сезон', 'коллекция'],
+      ['мастер-класс', 'обучение', 'советы'], ['успех', 'кейс', 'результаты'],
+      ['эксперты', 'советы', 'профессионализм'], ['команда', 'культура', 'ценности']
+    ];
+    
+    for (let i = 0; i < 50; i++) {
+      const daysAgo = Math.floor(Math.random() * 90);
+      const date = new Date(now);
+      date.setDate(date.getDate() - daysAgo);
+      
+      const type = types[Math.floor(Math.random() * types.length)];
+      const sentiment = sentiments[Math.floor(Math.random() * sentiments.length)];
+      const title = titles[Math.floor(Math.random() * titles.length)];
+      const themes = themesList[Math.floor(Math.random() * themesList.length)];
+      
+      // Реалистичные метрики в зависимости от типа
+      let views, likes, comments, reposts;
+      if (type === 'video') {
+        views = 8000 + Math.floor(Math.random() * 12000);
+        likes = Math.floor(views * 0.02 + Math.random() * views * 0.01);
+        comments = Math.floor(views * 0.003 + Math.random() * views * 0.002);
+        reposts = Math.floor(likes * 0.1 + Math.random() * likes * 0.1);
+      } else if (type === 'image') {
+        views = 5000 + Math.floor(Math.random() * 10000);
+        likes = Math.floor(views * 0.025 + Math.random() * views * 0.015);
+        comments = Math.floor(views * 0.002 + Math.random() * views * 0.001);
+        reposts = Math.floor(likes * 0.08 + Math.random() * likes * 0.08);
+      } else {
+        views = 3000 + Math.floor(Math.random() * 8000);
+        likes = Math.floor(views * 0.015 + Math.random() * views * 0.01);
+        comments = Math.floor(views * 0.005 + Math.random() * views * 0.003);
+        reposts = Math.floor(likes * 0.06 + Math.random() * likes * 0.06);
+      }
+      
+      const engagement = views > 0 ? parseFloat(((likes + comments * 2) / views * 100).toFixed(1)) : 0;
+      
+      mockData.push({
+        id: i + 1,
+        title: `${title}${i > 0 ? ` #${i + 1}` : ''}`,
+        type: type,
+        date: date.toISOString().split('T')[0],
+        views: views,
+        likes: likes,
+        comments: comments,
+        reposts: reposts,
+        sentiment: sentiment,
+        engagement: engagement,
+        themes: themes
+      });
     }
-  ];
+    
+    // Сортируем по дате (новые сначала)
+    return mockData.sort((a, b) => new Date(b.date) - new Date(a.date));
+  };
 
   // Фильтрация и сортировка данных
   const filteredAndSortedData = useMemo(() => {
@@ -167,8 +177,8 @@ const ContentTable = () => {
 
   const getSentimentColor = (sentiment) => {
     switch (sentiment) {
-      case 'positive': return '#10b981';
-      case 'negative': return '#ef4444';
+      case 'positive': return '#dc2626';
+      case 'negative': return '#991b1b';
       case 'neutral': return '#6b7280';
       default: return '#6b7280';
     }

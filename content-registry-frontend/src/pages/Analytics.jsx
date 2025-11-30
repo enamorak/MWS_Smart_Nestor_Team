@@ -60,22 +60,39 @@ const Analytics = () => {
     const days = timeRange === '7d' ? 7 : timeRange === '30d' ? 30 : timeRange === '90d' ? 90 : 30;
     const data = [];
     
+    // Базовые значения с учетом выбранных сетей
+    const networkMultiplier = selectedNetworks.length / 4;
+    const baseViews = (analytics.summary.totalViews / days) * networkMultiplier;
+    const baseLikes = (analytics.summary.totalLikes / days) * networkMultiplier;
+    const baseComments = (analytics.summary.totalComments / days) * networkMultiplier;
+    
+    // Добавляем тренд (небольшой рост)
+    const trendFactor = 1 + (days / 100);
+    
     for (let i = days - 1; i >= 0; i--) {
       const date = new Date();
       date.setDate(date.getDate() - i);
       const dateStr = date.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' });
       
-      // Генерируем реалистичные данные на основе аналитики
-      const baseViews = analytics.summary.totalViews / days;
-      const baseLikes = analytics.summary.totalLikes / days;
-      const baseComments = analytics.summary.totalComments / days;
+      // Выходные показывают меньше активности
+      const dayOfWeek = date.getDay();
+      const weekendFactor = (dayOfWeek === 0 || dayOfWeek === 6) ? 0.85 : 1.0;
+      
+      // Тренд с небольшим ростом
+      const currentTrend = 1 + ((days - i) / days) * 0.15;
+      
+      // Варьируем данные более реалистично
+      const views = Math.round(baseViews * weekendFactor * currentTrend * (0.75 + Math.random() * 0.5));
+      const likes = Math.round(baseLikes * weekendFactor * currentTrend * (0.7 + Math.random() * 0.6));
+      const comments = Math.round(baseComments * weekendFactor * currentTrend * (0.65 + Math.random() * 0.7));
+      const engagement = views > 0 ? parseFloat(((likes + comments * 2) / views * 100).toFixed(2)) : 0;
       
       data.push({
         date: dateStr,
-        views: Math.round(baseViews * (0.7 + Math.random() * 0.6)),
-        likes: Math.round(baseLikes * (0.7 + Math.random() * 0.6)),
-        comments: Math.round(baseComments * (0.7 + Math.random() * 0.6)),
-        engagement: parseFloat(((baseLikes + baseComments * 2) / baseViews * 100 * (0.8 + Math.random() * 0.4)).toFixed(2))
+        views: views,
+        likes: likes,
+        comments: comments,
+        engagement: engagement
       });
     }
     
@@ -88,7 +105,7 @@ const Analytics = () => {
   const typeDistributionData = analytics ? Object.entries(analytics.typeStats).map(([type, stats]) => ({
     name: type === 'video' ? 'Видео' : type === 'post' ? 'Посты' : 'Изображения',
     value: stats.count,
-    color: type === 'video' ? '#dc2626' : type === 'post' ? '#dc2626' : '#dc2626'
+    color: type === 'video' ? '#dc2626' : type === 'post' ? '#9ca3af' : '#d1d5db'
   })) : [];
 
   // Данные для тональности
@@ -100,9 +117,10 @@ const Analytics = () => {
 
   // Данные для сравнения по социальным сетям
   const socialNetworkData = [
-    { network: 'VK', views: 45000, likes: 3200, comments: 890, engagement: 4.2 },
-    { network: 'Telegram', views: 38000, likes: 2800, comments: 650, engagement: 5.1 },
-    { network: 'Instagram', views: 42000, likes: 4100, comments: 1200, engagement: 6.3 }
+    { network: 'VK', views: 287500, likes: 18450, comments: 5230, engagement: 4.8 },
+    { network: 'Telegram', views: 195000, likes: 12400, comments: 3890, engagement: 5.6 },
+    { network: 'Instagram', views: 342000, likes: 28700, comments: 8450, engagement: 7.2 },
+    { network: 'YouTube', views: 485000, likes: 34200, comments: 12400, engagement: 4.1 }
   ];
 
   if (loading) {

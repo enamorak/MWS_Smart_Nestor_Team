@@ -49,11 +49,27 @@ const ChatInterface = () => {
     try {
       const response = await axios.post('/api/bot/message', {
         message: text
+      }, {
+        timeout: 30000
       });
+
+      console.log('AI Response:', response.data);
+
+      let responseText = 'Ответ получен';
+      
+      if (response.data?.success && response.data?.response?.text) {
+        responseText = response.data.response.text;
+      } else if (response.data?.response) {
+        responseText = typeof response.data.response === 'string' 
+          ? response.data.response 
+          : response.data.response.text || 'Ответ получен';
+      } else if (response.data?.text) {
+        responseText = response.data.text;
+      }
 
       const botMessage = {
         id: Date.now() + 1,
-        text: response.data?.response?.text || response.data?.response || 'Ответ получен',
+        text: responseText,
         isUser: false,
         timestamp: new Date()
       };
@@ -62,9 +78,20 @@ const ChatInterface = () => {
     } catch (error) {
       console.error('Error sending message:', error);
       
+      // Показываем более информативное сообщение об ошибке
+      let errorText = 'Извините, произошла ошибка при отправке сообщения.';
+      
+      if (error.response?.data?.error) {
+        errorText = `Ошибка: ${error.response.data.error}`;
+      } else if (error.message) {
+        errorText = `Ошибка подключения: ${error.message}`;
+      }
+      
+      errorText += '\n\nПопробуйте:\n• Проверить подключение к интернету\n• Обновить страницу\n• Задать вопрос еще раз';
+      
       const errorMessage = {
         id: Date.now() + 1,
-        text: 'Извините, произошла ошибка. Пожалуйста, попробуйте еще раз.',
+        text: errorText,
         isUser: false,
         timestamp: new Date()
       };

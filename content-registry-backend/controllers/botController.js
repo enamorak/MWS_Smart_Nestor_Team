@@ -31,10 +31,30 @@ class BotController {
 
     } catch (error) {
       console.error('Bot message error:', error);
-      res.status(500).json({
-        success: false,
-        error: 'Internal server error'
-      });
+      
+      // Даже при ошибке возвращаем ответ через fallback
+      try {
+        const contextData = await this.getContextData(req.body.message || '');
+        const fallbackResponse = await aiService.generateBotResponse(
+          req.body.message || 'Привет', 
+          contextData
+        );
+        
+        res.json({
+          success: true,
+          response: {
+            text: fallbackResponse,
+            timestamp: new Date().toISOString(),
+            context_used: Object.keys(contextData).length > 0
+          }
+        });
+      } catch (fallbackError) {
+        res.status(500).json({
+          success: false,
+          error: 'Internal server error',
+          message: 'Попробуйте перезагрузить страницу'
+        });
+      }
     }
   }
 

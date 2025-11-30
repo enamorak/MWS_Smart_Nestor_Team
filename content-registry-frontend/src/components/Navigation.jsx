@@ -7,7 +7,9 @@ import {
   FileText, 
   Moon, 
   Sun,
-  Users
+  Users,
+  Bell,
+  Building2
 } from 'lucide-react';
 import Notifications from './Notifications';
 
@@ -19,6 +21,7 @@ const Navigation = ({ darkMode, setDarkMode }) => {
     { path: '/networks', icon: Users, label: 'Все сети' },
     { path: '/content', icon: FileText, label: 'Контент' },
     { path: '/analytics', icon: PieChart, label: 'Аналитика' },
+    { path: '/companies', icon: Building2, label: 'Компании (B2B)' },
     { path: '/chat', icon: MessageCircle, label: 'AI Ассистент' }
   ];
 

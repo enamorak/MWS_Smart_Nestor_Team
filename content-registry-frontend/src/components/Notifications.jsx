@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { Bell, X, CheckCircle, AlertCircle, Info, TrendingUp, Users, MessageCircle } from 'lucide-react';
 
 const Notifications = () => {
@@ -199,9 +200,9 @@ const Notifications = () => {
 
           {notifications.length > 0 && (
             <div className="notifications-footer">
-              <button className="view-all-notifications">
-                Показать все уведомления
-              </button>
+              <Link to="/notifications" className="view-all-notifications">
+                Показать все уведомления ({notifications.length})
+              </Link>
             </div>
           )}
         </div>

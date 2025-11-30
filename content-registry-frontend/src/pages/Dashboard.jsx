@@ -62,7 +62,7 @@ const Dashboard = () => {
       change: '+8%',
       trend: 'up',
       icon: Eye,
-      color: 'green',
+      color: 'blue',
       description: 'Просмотры'
     },
     { 
@@ -71,7 +71,7 @@ const Dashboard = () => {
       change: '+2%',
       trend: 'up',
       icon: Heart,
-      color: 'purple',
+      color: 'blue',
       description: 'Средний показатель'
     },
     { 
@@ -80,7 +80,7 @@ const Dashboard = () => {
       change: '+15%',
       trend: 'up',
       icon: MessageCircle,
-      color: 'orange',
+      color: 'blue',
       description: 'Всего комментариев'
     }
   ] : [];
@@ -102,7 +102,7 @@ const Dashboard = () => {
     count: stats.count,
     percentage: ((stats.count / analytics.summary.totalPosts) * 100).toFixed(1),
     avgViews: Math.round(stats.totalViews / stats.count),
-    color: type === 'video' ? '#dc2626' : type === 'post' ? '#dc2626' : '#dc2626'
+    color: type === 'video' ? '#dc2626' : type === 'post' ? '#9ca3af' : '#d1d5db'
   })) : [];
 
   // Анализ тональности

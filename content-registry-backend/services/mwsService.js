@@ -75,46 +75,94 @@ class MWSService {
   }
 
   getMockTableData() {
+    const now = new Date();
+    const rows = [];
+    
+    // Генерируем 50 реалистичных записей
+    const titles = [
+      'Обзор нового продукта 2025', 'Акция недели - скидки до 50%', 'За кулисами производства',
+      'Интервью с основателем', 'Отзывы клиентов', 'Новинка сезона', 'Мастер-класс по использованию',
+      'История успеха клиента', 'Советы от экспертов', 'Презентация коллекции',
+      'Встреча с командой', 'День открытых дверей', 'Специальное предложение',
+      'Обновление сервиса', 'Партнерство с брендом', 'Эксклюзивное интервью',
+      'Тренды индустрии', 'Секреты успеха', 'Кейс-стади', 'FAQ от пользователей',
+      'Видео-обзор функций', 'Сравнение продуктов', 'Руководство для новичков',
+      'Продвинутые техники', 'Вдохновляющие истории', 'Практические советы',
+      'Разбор ошибок', 'Лучшие практики', 'Инновации в отрасли', 'Мотивационные посты'
+    ];
+    
+    const types = ['video', 'post', 'image'];
+    const networks = ['vk', 'telegram', 'instagram', 'youtube'];
+    const themes = [
+      ['продукт', 'обзор', 'новинка'], ['акция', 'скидки', 'цены'],
+      ['производство', 'закулисье', 'качество'], ['интервью', 'основатель', 'история'],
+      ['отзывы', 'клиенты', 'опыт'], ['новинка', 'сезон', 'коллекция'],
+      ['мастер-класс', 'обучение', 'советы'], ['успех', 'кейс', 'результаты'],
+      ['эксперты', 'советы', 'профессионализм'], ['команда', 'культура', 'ценности']
+    ];
+    
+    for (let i = 0; i < 50; i++) {
+      const daysAgo = Math.floor(Math.random() * 90);
+      const date = new Date(now);
+      date.setDate(date.getDate() - daysAgo);
+      date.setHours(Math.floor(Math.random() * 24), Math.floor(Math.random() * 60));
+      
+      const type = types[Math.floor(Math.random() * types.length)];
+      const network = networks[Math.floor(Math.random() * networks.length)];
+      const title = titles[Math.floor(Math.random() * titles.length)];
+      const themeSet = themes[Math.floor(Math.random() * themes.length)];
+      
+      // Реалистичные метрики в зависимости от типа
+      let baseViews, baseLikes, baseComments;
+      if (type === 'video') {
+        baseViews = 8000 + Math.random() * 12000;
+        baseLikes = baseViews * 0.02 + Math.random() * baseViews * 0.01;
+        baseComments = baseViews * 0.003 + Math.random() * baseViews * 0.002;
+      } else if (type === 'image') {
+        baseViews = 5000 + Math.random() * 10000;
+        baseLikes = baseViews * 0.025 + Math.random() * baseViews * 0.015;
+        baseComments = baseViews * 0.002 + Math.random() * baseViews * 0.001;
+      } else {
+        baseViews = 3000 + Math.random() * 8000;
+        baseLikes = baseViews * 0.015 + Math.random() * baseViews * 0.01;
+        baseComments = baseViews * 0.005 + Math.random() * baseViews * 0.003;
+      }
+      
+      const views = Math.round(baseViews);
+      const likes = Math.round(baseLikes);
+      const comments = Math.round(baseComments);
+      const reposts = Math.round(likes * 0.1 + Math.random() * likes * 0.1);
+      
+      // Тональность
+      const pos = 50 + Math.random() * 30;
+      const neg = Math.random() * 20;
+      const neutral = 100 - pos - neg;
+      
+      rows.push({
+        id: String(i + 1),
+        title: `${title} ${i > 0 ? `#${i + 1}` : ''}`,
+        type: type,
+        network: network,
+        date: date.toISOString(),
+        views: views,
+        likes: likes,
+        comments: comments,
+        reposts: reposts,
+        shares: reposts,
+        sentiment_positive: Math.round(pos),
+        sentiment_neutral: Math.round(neutral),
+        sentiment_negative: Math.round(neg),
+        themes: themeSet,
+        engagement: ((likes + comments * 2) / views * 100).toFixed(2)
+      });
+    }
+    
+    // Сортируем по дате (новые сначала)
+    rows.sort((a, b) => new Date(b.date) - new Date(a.date));
+    
     return {
-      rows: [
-        {
-          id: '1',
-          title: 'Обзор нового продукта 2025',
-          type: 'video',
-          date: '2025-11-29T10:00:00Z',
-          views: 12500,
-          likes: 245,
-          comments: 34,
-          sentiment_positive: 70,
-          sentiment_neutral: 20,
-          sentiment_negative: 10
-        },
-        {
-          id: '2',
-          title: 'Акция недели - скидки до 50%',
-          type: 'post',
-          date: '2025-11-28T14:30:00Z',
-          views: 8900,
-          likes: 156,
-          comments: 89,
-          sentiment_positive: 30,
-          sentiment_neutral: 40,
-          sentiment_negative: 30
-        },
-        {
-          id: '3',
-          title: 'За кулисами производства',
-          type: 'image',
-          date: '2025-11-27T09:15:00Z',
-          views: 15600,
-          likes: 312,
-          comments: 45,
-          sentiment_positive: 65,
-          sentiment_neutral: 25,
-          sentiment_negative: 10
-        }
-      ],
-      total_count: 3
+      rows: rows,
+      total_count: rows.length
     };
   }
 
@@ -212,30 +260,221 @@ class MWSService {
     }
   }
 
+  // Поддержка формул MWS Tables
+  async evaluateFormula(formula, context = {}) {
+    try {
+      // Заменяем переменные в формуле на значения из контекста
+      let evaluatedFormula = formula;
+      
+      // Поддержка базовых формул MWS Tables
+      // Примеры: SUM(field), AVG(field), COUNT(field), IF(condition, true, false)
+      
+      // SUM - сумма значений
+      evaluatedFormula = evaluatedFormula.replace(/SUM\((\w+)\)/g, (match, field) => {
+        const values = context[field] || [];
+        return values.reduce((sum, val) => sum + (parseFloat(val) || 0), 0);
+      });
+      
+      // AVG - среднее значение
+      evaluatedFormula = evaluatedFormula.replace(/AVG\((\w+)\)/g, (match, field) => {
+        const values = context[field] || [];
+        if (values.length === 0) return 0;
+        const sum = values.reduce((sum, val) => sum + (parseFloat(val) || 0), 0);
+        return sum / values.length;
+      });
+      
+      // COUNT - количество
+      evaluatedFormula = evaluatedFormula.replace(/COUNT\((\w+)\)/g, (match, field) => {
+        const values = context[field] || [];
+        return values.length;
+      });
+      
+      // IF - условная логика
+      evaluatedFormula = evaluatedFormula.replace(/IF\(([^,]+),([^,]+),([^)]+)\)/g, (match, condition, trueVal, falseVal) => {
+        // Простая проверка условий
+        const conditionResult = this.evaluateCondition(condition, context);
+        return conditionResult ? trueVal.trim() : falseVal.trim();
+      });
+      
+      // Вычисляем финальную формулу
+      return eval(evaluatedFormula);
+    } catch (error) {
+      console.error('Formula evaluation error:', error);
+      return 0;
+    }
+  }
+
+  evaluateCondition(condition, context) {
+    // Поддержка простых условий: >, <, >=, <=, ==, !=
+    const operators = ['>=', '<=', '==', '!=', '>', '<'];
+    
+    for (const op of operators) {
+      if (condition.includes(op)) {
+        const [left, right] = condition.split(op).map(s => s.trim());
+        const leftVal = parseFloat(context[left] || left) || 0;
+        const rightVal = parseFloat(context[right] || right) || 0;
+        
+        switch (op) {
+          case '>': return leftVal > rightVal;
+          case '<': return leftVal < rightVal;
+          case '>=': return leftVal >= rightVal;
+          case '<=': return leftVal <= rightVal;
+          case '==': return leftVal === rightVal;
+          case '!=': return leftVal !== rightVal;
+          default: return false;
+        }
+      }
+    }
+    
+    return false;
+  }
+
+  // Автоматические сценарии MWS Tables
+  async executeAutomation(trigger, action, data = {}) {
+    try {
+      console.log(`Executing automation: ${trigger} -> ${action}`);
+      
+      // Типы триггеров
+      const triggers = {
+        'data_updated': () => this.onDataUpdated(data),
+        'threshold_reached': () => this.onThresholdReached(data),
+        'schedule': () => this.onSchedule(data),
+        'webhook': () => this.onWebhook(data)
+      };
+      
+      // Типы действий
+      const actions = {
+        'update_data': (params) => this.updateData(params),
+        'send_notification': (params) => this.sendNotification(params),
+        'calculate_metrics': (params) => this.calculateMetrics(params),
+        'sync_external': (params) => this.syncExternal(params)
+      };
+      
+      // Выполняем триггер
+      const triggerResult = triggers[trigger] ? await triggers[trigger]() : null;
+      
+      // Выполняем действие
+      if (actions[action]) {
+        return await actions[action]({ ...data, triggerResult });
+      }
+      
+      return { success: true, message: 'Automation executed' };
+    } catch (error) {
+      console.error('Automation error:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  async onDataUpdated(data) {
+    // Триггер: данные обновлены
+    console.log('Data updated trigger:', data);
+    return { triggered: true, timestamp: new Date().toISOString() };
+  }
+
+  async onThresholdReached(data) {
+    // Триггер: достигнут порог
+    const { field, threshold, value } = data;
+    if (parseFloat(value) >= parseFloat(threshold)) {
+      return { triggered: true, field, threshold, value };
+    }
+    return { triggered: false };
+  }
+
+  async onSchedule(data) {
+    // Триггер: по расписанию
+    return { triggered: true, schedule: data.schedule };
+  }
+
+  async onWebhook(data) {
+    // Триггер: webhook
+    return { triggered: true, webhook: data };
+  }
+
+  async updateData(params) {
+    // Действие: обновить данные
+    console.log('Updating data:', params);
+    return { success: true, updated: true };
+  }
+
+  async sendNotification(params) {
+    // Действие: отправить уведомление
+    console.log('Sending notification:', params);
+    return { success: true, notificationSent: true };
+  }
+
+  async calculateMetrics(params) {
+    // Действие: рассчитать метрики
+    const { formula, data } = params;
+    const result = await this.evaluateFormula(formula, data);
+    return { success: true, result };
+  }
+
+  async syncExternal(params) {
+    // Действие: синхронизировать с внешним сервисом
+    console.log('Syncing external:', params);
+    return { success: true, synced: true };
+  }
+
   getMockAnalytics() {
+    const mockData = this.getMockTableData();
+    const rows = mockData.rows;
+    
+    const totalPosts = rows.length;
+    const totalViews = rows.reduce((sum, row) => sum + (row.views || 0), 0);
+    const totalLikes = rows.reduce((sum, row) => sum + (row.likes || 0), 0);
+    const totalComments = rows.reduce((sum, row) => sum + (row.comments || 0), 0);
+    const avgEngagement = totalViews > 0 ? ((totalLikes + totalComments * 2) / totalViews) * 100 : 0;
+    
+    // Статистика по типам
+    const typeStats = rows.reduce((stats, row) => {
+      const type = row.type || 'post';
+      if (!stats[type]) {
+        stats[type] = { count: 0, totalViews: 0, totalLikes: 0, totalComments: 0 };
+      }
+      stats[type].count += 1;
+      stats[type].totalViews += row.views || 0;
+      stats[type].totalLikes += row.likes || 0;
+      stats[type].totalComments += row.comments || 0;
+      return stats;
+    }, {});
+    
+    // Топ посты
+    const topPosts = rows
+      .sort((a, b) => (b.views || 0) - (a.views || 0))
+      .slice(0, 10)
+      .map(row => ({
+        title: row.title,
+        views: row.views,
+        likes: row.likes,
+        comments: row.comments,
+        type: row.type
+      }));
+    
+    // Тональность
+    const sentimentStats = rows.reduce((stats, row) => {
+      stats.total += 1;
+      stats.positive += row.sentiment_positive || 0;
+      stats.neutral += row.sentiment_neutral || 0;
+      stats.negative += row.sentiment_negative || 0;
+      return stats;
+    }, { total: 0, positive: 0, neutral: 0, negative: 0 });
+    
     return {
       summary: {
-        totalPosts: 156,
-        totalViews: 125000,
-        totalLikes: 12450,
-        totalComments: 2345,
-        avgEngagement: 4.2
+        totalPosts: totalPosts,
+        totalViews: totalViews,
+        totalLikes: totalLikes,
+        totalComments: totalComments,
+        avgEngagement: parseFloat(avgEngagement.toFixed(2))
       },
-      typeStats: {
-        post: { count: 89, totalViews: 65000, totalLikes: 5200, totalComments: 1200 },
-        video: { count: 45, totalViews: 45000, totalLikes: 5800, totalComments: 800 },
-        image: { count: 22, totalViews: 15000, totalLikes: 1450, totalComments: 345 }
-      },
-      topPosts: [
-        { title: 'Обзор нового продукта', views: 12500, likes: 245, type: 'video' },
-        { title: 'За кулисами производства', views: 15600, likes: 312, type: 'image' },
-        { title: 'Интервью с основателем', views: 9800, likes: 198, type: 'video' }
-      ],
+      typeStats: typeStats,
+      topPosts: topPosts,
       sentiment: {
-        positive: 0.65,
-        neutral: 0.25,
-        negative: 0.10
-      }
+        positive: parseFloat((sentimentStats.positive / sentimentStats.total / 100).toFixed(2)),
+        neutral: parseFloat((sentimentStats.neutral / sentimentStats.total / 100).toFixed(2)),
+        negative: parseFloat((sentimentStats.negative / sentimentStats.total / 100).toFixed(2))
+      },
+      recentPosts: rows.slice(0, 10)
     };
   }
 }

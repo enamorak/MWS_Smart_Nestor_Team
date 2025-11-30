@@ -348,25 +348,256 @@ npm run preview
 
 ---
 
-## Архитектура
+## Архитектура решения
 
-### Backend архитектура
+### Общая архитектура
+
+Проект построен по принципу клиент-серверной архитектуры с разделением на frontend и backend компоненты, интегрированные с MWS Tables как основным источником данных.
 
 ```
-Client Request
-    ↓
-Express Server (server.js)
-    ↓
-Routes (routes/*.js)
-    ↓
-Controllers (controllers/*.js)
-    ↓
-Services (services/*.js)
-    ↓
-External APIs / MWS Tables
-    ↓
-Response
+┌─────────────────────────────────────────────────────────────┐
+│                    Пользовательский интерфейс              │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐ │
+│  │ Dashboard│  │ Analytics │  │  Content │  │   Chat   │ │
+│  └──────────┘  └──────────┘  └──────────┘  └──────────┘ │
+│                                                             │
+│                    React Frontend (Vite)                    │
+└───────────────────────┬─────────────────────────────────────┘
+                        │
+                        │ HTTP/REST API
+                        │
+┌───────────────────────▼─────────────────────────────────────┐
+│                    Backend API Server                       │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐ │
+│  │  Routes  │  │Controllers│  │ Services │  │   AI     │ │
+│  └──────────┘  └──────────┘  └──────────┘  └──────────┘ │
+│                                                             │
+│              Node.js + Express.js                           │
+└───────────────────────┬─────────────────────────────────────┘
+                        │
+        ┌───────────────┼───────────────┐
+        │               │               │
+┌───────▼──────┐ ┌──────▼──────┐ ┌──────▼──────┐
+│  MWS Tables  │ │ OpenRouter  │ │ Social APIs│
+│     API      │ │     API     │ │  (VK, etc) │
+└──────────────┘ └─────────────┘ └────────────┘
 ```
+
+### Компоненты системы
+
+#### 1. Frontend (React Application)
+
+**Технологический стек:**
+- **React 18** - UI библиотека
+- **React Router DOM** - маршрутизация
+- **Vite** - сборщик и dev-сервер
+- **Recharts** - графики и визуализация
+- **Lucide React** - иконки
+- **Axios** - HTTP клиент
+
+**Структура:**
+```
+content-registry-frontend/
+├── src/
+│   ├── components/          # Переиспользуемые компоненты
+│   │   ├── Navigation.jsx    # Навигационное меню
+│   │   ├── ChatInterface.jsx # Интерфейс AI-ассистента
+│   │   ├── ContentTable.jsx  # Таблица контента
+│   │   └── Notifications.jsx # Компонент уведомлений
+│   ├── pages/               # Страницы приложения
+│   │   ├── Dashboard.jsx    # Главная страница
+│   │   ├── Analytics.jsx    # Аналитика
+│   │   ├── Content.jsx      # Управление контентом
+│   │   ├── SocialNetworks.jsx # Все социальные сети
+│   │   ├── ChatBot.jsx      # AI-ассистент
+│   │   └── NotificationsPage.jsx # Страница уведомлений
+│   ├── services/            # API клиенты
+│   │   └── api.js           # MWS API клиент
+│   ├── styles/              # Стили
+│   │   └── index.css        # Глобальные стили
+│   ├── App.jsx              # Корневой компонент
+│   └── main.jsx             # Точка входа
+```
+
+**Особенности:**
+- Модульная архитектура компонентов
+- Централизованное управление состоянием через React hooks
+- Адаптивный дизайн (responsive)
+- Темная/светлая тема
+- Оптимизация производительности через React.memo и useMemo
+
+#### 2. Backend (Node.js API Server)
+
+**Технологический стек:**
+- **Node.js** - серверная платформа
+- **Express.js** - веб-фреймворк
+- **Axios** - HTTP клиент для внешних API
+- **Dotenv** - управление переменными окружения
+- **CORS** - обработка CORS запросов
+
+**Структура:**
+```
+content-registry-backend/
+├── controllers/             # Контроллеры (обработка запросов)
+│   ├── botController.js     # AI-ассистент
+│   └── analyticsController.js # Аналитика
+├── services/                 # Бизнес-логика
+│   ├── mwsService.js        # Интеграция с MWS Tables
+│   ├── aiService.js         # AI сервис (OpenRouter)
+│   └── socialNetworksService.js # Социальные сети
+├── routes/                  # Маршруты API
+│   └── index.js            # Определение endpoints
+├── models/                  # Модели данных
+├── server.js                # Точка входа сервера
+└── .env                     # Переменные окружения
+```
+
+**API Endpoints:**
+- `GET /api/analytics` - получение аналитики
+- `GET /api/content` - получение контента
+- `POST /api/bot/message` - отправка сообщения AI
+- `GET /api/bot/status` - статус AI сервиса
+
+#### 3. MWS Tables Integration
+
+**Роль в архитектуре:**
+- Единый источник данных (Single Source of Truth)
+- Хранилище всех метрик и контента
+- Встроенные дашборды и визуализация
+- API для синхронизации данных
+
+**Поток данных:**
+```
+Социальные сети → Backend Service → MWS Tables API → Таблица content_registry
+                                                          ↓
+Frontend ← Backend API ← MWS Tables API ← Дашборды MWS
+```
+
+#### 4. AI Service (OpenRouter)
+
+**Интеграция:**
+- Использует OpenRouter API для доступа к LLM моделям
+- Fallback система для работы без API ключа
+- Умные промпты для маркетинга и аналитики
+- Контекстные ответы на основе данных MWS Tables
+
+**Промпты для маркетинга:**
+1. Креативы для рекламы с высокой конверсией (AIDA, PAS)
+2. Вирусные креативы для соцсетей
+3. Креативы на основе сторителлинга
+4. Убедительный рекламный текст (психологические принципы)
+5. Хук для увеличения вовлеченности
+6. Уникальный маркетинговый угол
+7. Видео-реклама с высокой конверсией
+
+**Архитектура AI:**
+```
+User Question → BotController → AIService
+                                      ↓
+                            ┌─────────┴─────────┐
+                            │                   │
+                    OpenRouter API      Smart Fallback
+                    (если есть ключ)    (всегда работает)
+                            │                   │
+                            └─────────┬─────────┘
+                                      ↓
+                            Context Data (MWS)
+                                      ↓
+                            Formatted Response
+```
+
+### Потоки данных
+
+#### 1. Загрузка аналитики
+```
+Frontend → GET /api/analytics
+              ↓
+         Backend Controller
+              ↓
+         MWS Service.getContentAnalytics()
+              ↓
+         MWS Tables API / Mock Data
+              ↓
+         Processed Analytics
+              ↓
+         Frontend Display
+```
+
+#### 2. AI-ассистент
+```
+User Input → POST /api/bot/message
+                ↓
+           BotController.handleMessage()
+                ↓
+           getContextData() → MWS Service
+                ↓
+           AIService.generateBotResponse()
+                ↓
+      ┌─────────┴─────────┐
+      │                   │
+OpenRouter API    Smart Fallback
+      │                   │
+      └─────────┬─────────┘
+                ↓
+         Formatted Response
+                ↓
+         Frontend Display
+```
+
+#### 3. Синхронизация данных
+```
+Cron Job / Manual Trigger
+         ↓
+Social Networks API (VK, Telegram, etc.)
+         ↓
+Backend Service.syncNetworkData()
+         ↓
+MWS Service.saveToTable()
+         ↓
+MWS Tables API
+         ↓
+Data Stored in content_registry
+```
+
+### Безопасность
+
+- **Переменные окружения** - все ключи API в `.env`
+- **CORS** - настройка для безопасности
+- **Валидация данных** - проверка входных данных
+- **Обработка ошибок** - graceful error handling
+- **Fallback системы** - работа без внешних API
+
+### Масштабируемость
+
+**Горизонтальное масштабирование:**
+- Stateless backend (можно запускать несколько инстансов)
+- Frontend как статические файлы (CDN)
+- MWS Tables как внешний сервис
+
+**Вертикальное масштабирование:**
+- Оптимизация запросов к MWS Tables
+- Кэширование данных
+- Пагинация больших списков
+
+### Развертывание
+
+**Development:**
+- Frontend: `npm run dev` (Vite dev server)
+- Backend: `npm start` (Node.js)
+
+**Production:**
+- Frontend: сборка через `npm run build`, раздача статики
+- Backend: PM2 или Docker контейнер
+- MWS Tables: облачный сервис
+
+### Интеграции
+
+1. **MWS Tables** - основной источник данных
+2. **OpenRouter** - AI модели (опционально)
+3. **VK API** - данные из VKontakte
+4. **Telegram API** - данные из Telegram
+5. **Instagram API** - данные из Instagram (через парсинг)
+6. **YouTube API** - данные из YouTube
 
 ### Frontend архитектура
 

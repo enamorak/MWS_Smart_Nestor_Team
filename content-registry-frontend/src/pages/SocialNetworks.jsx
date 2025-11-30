@@ -44,70 +44,70 @@ const SocialNetworks = () => {
       const response = await mwsAPI.getAnalytics();
       
       // Генерируем данные для разных сетей на основе MWS данных
-      const         networksData = [
+      const networksData = [
         {
           id: 'vk',
           name: 'VKontakte',
           icon: <Users size={20} />,
           color: '#dc2626',
           stats: {
-            totalPosts: 89,
-            totalViews: 45000,
-            totalLikes: 3200,
-            totalComments: 890,
-            totalShares: 450,
-            avgEngagement: 4.2,
-            growth: 8.5
+            totalPosts: 142,
+            totalViews: 287500,
+            totalLikes: 18450,
+            totalComments: 5230,
+            totalShares: 2150,
+            avgEngagement: 4.8,
+            growth: 12.5
           },
-          timeSeries: generateTimeSeries(45000, 3200, 890)
+          timeSeries: generateTimeSeries(287500, 18450, 5230)
         },
         {
           id: 'telegram',
           name: 'Telegram',
           icon: <MessageCircle size={20} />,
-          color: '#dc2626',
+          color: '#991b1b',
           stats: {
-            totalPosts: 67,
-            totalViews: 38000,
-            totalLikes: 2800,
-            totalComments: 650,
-            totalShares: 320,
-            avgEngagement: 5.1,
-            growth: 12.3
+            totalPosts: 98,
+            totalViews: 195000,
+            totalLikes: 12400,
+            totalComments: 3890,
+            totalShares: 1870,
+            avgEngagement: 5.6,
+            growth: 18.3
           },
-          timeSeries: generateTimeSeries(38000, 2800, 650)
+          timeSeries: generateTimeSeries(195000, 12400, 3890)
         },
         {
           id: 'instagram',
           name: 'Instagram',
           icon: <Image size={20} />,
-          color: '#dc2626',
+          color: '#9ca3af',
           stats: {
-            totalPosts: 95,
-            totalViews: 42000,
-            totalLikes: 4100,
-            totalComments: 1200,
-            totalShares: 890,
-            avgEngagement: 6.3,
-            growth: 15.2
+            totalPosts: 156,
+            totalViews: 342000,
+            totalLikes: 28700,
+            totalComments: 8450,
+            totalShares: 3200,
+            avgEngagement: 7.2,
+            growth: 24.7
           },
-          timeSeries: generateTimeSeries(42000, 4100, 1200)
+          timeSeries: generateTimeSeries(342000, 28700, 8450)
         },
         {
           id: 'youtube',
           name: 'YouTube',
           icon: <Video size={20} />,
-          color: '#dc2626',
+          color: '#d1d5db',
           stats: {
-            totalPosts: 34,
-            totalViews: 125000,
-            totalLikes: 8900,
-            totalComments: 2100,
-            totalShares: 1200,
-            avgEngagement: 3.8,
-            growth: 22.1
+            totalPosts: 67,
+            totalViews: 485000,
+            totalLikes: 34200,
+            totalComments: 12400,
+            totalShares: 5600,
+            avgEngagement: 4.1,
+            growth: 31.2
           },
-          timeSeries: generateTimeSeries(125000, 8900, 2100)
+          timeSeries: generateTimeSeries(485000, 34200, 12400)
         }
       ];
       
@@ -259,8 +259,8 @@ const SocialNetworks = () => {
             <Tooltip />
             <Legend />
             <Bar dataKey="views" fill="#dc2626" name="Просмотры" />
-            <Bar dataKey="likes" fill="#dc2626" name="Лайки" />
-            <Bar dataKey="comments" fill="#dc2626" name="Комментарии" />
+            <Bar dataKey="likes" fill="#991b1b" name="Лайки" />
+            <Bar dataKey="comments" fill="#9ca3af" name="Комментарии" />
           </BarChart>
         </ResponsiveContainer>
       </div>
